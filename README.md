@@ -19,3 +19,17 @@ README.md
 > [(git tag -a v0.0.1 -m "beta ver..."; git push origin v0.0.1)]
 - 8 Удалить release-v0.0.1 
 > [( git push origin -d branch_name, local - git branch -D branch_name)]
+
+
+
+## Homework 15
+
+## _Tasks_
+
+- Установить python 3.11 через pyenv
+- Создать проект с помощью poetry
+- Добавить группу зависимостей dev, сделать её опциональной и добавить black пакет
+- Создать main.py с кодом - если перменная среды SHELL равна ‘/bin/bash’ напечатать в консоль Greetings bash если другое значение Hello <значение переменной среды>
+- Сделать black ./
+- Закоммитить все файлы (pyptoject.toml, poetry.lock, main.py etc) в feature ветку, слить ее с develop(без апрува)
+- По готовности сделать пулл реквест в master с апрувером @ggramal, отписаться в тг канале
