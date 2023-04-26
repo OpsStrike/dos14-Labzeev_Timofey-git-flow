@@ -29,6 +29,7 @@ data_term = ["1_1", "2_2", "3_2", "4_6", "5_8", "6_20", "7_9", "8_11", "9_13", "
 
 # Объявляем пустой список для записи в нее результата в последующем.
 results = []
+a_hard_perncent = results
 # Проходимся циклом по массиву с функцией range, которая создает последовательность чисел от 0 с шагом 1 до конечного значения в нашел случаи.
 # функцией len расчитываем кол-во элементов в списке, т.е длинну.
 for i in range(len(data_sum)):
@@ -105,3 +106,94 @@ for result in results:
 # третий - шириной 8 символов, четвертый - шириной 10 символов, пятый - шириной 10 символов. Каждый столбец разделен от другого пробелами.
 # Когда мы используем эту строку форматирования в команде print(), мы передаем значения для каждого столбца в порядке их расположения в строке форматирования,
 # и Python автоматически выравнивает их по заданным параметрам, чтобы получилась таблица.
+
+#LESSON 17        
+
+import json
+import csv
+import yaml
+
+# Открываем и считываем информацию из файлов
+with open('credit.json') as f:
+    credit_data = json.load(f)
+
+with open('deposit.yaml') as f:
+    deposit_data = yaml.load(f, Loader=yaml.FullLoader)
+
+with open('account.csv') as f:
+    account_data = list(csv.DictReader(f))
+
+# Сортируем списки по возрастанию id
+credit_data = sorted(credit_data, key=lambda x: x['id'])
+deposit_data = sorted(deposit_data, key=lambda x: x['id'])
+account_data = sorted(account_data, key=lambda x: int(x['id']))
+
+for i in credit_data + account_data:
+    i["sum_total"] = end_sum
+    i["months"] = 12
+    i["months_counter"] = 12   
+
+import csv
+import time
+import json
+
+# def read_from_file():
+#      with open('account.csv', 'r') as f:
+#         reader = csv.DictReader(f)
+#         account_data = [row for row in reader]
+#         return account_data
+def write_to_file(account_data):
+    with open('account.csv', 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=['id', 'amount'])
+        writer.writeheader()
+        writer = csv.DictWriter(f, fieldnames=['id', 'amount', 'months', 'months_counter', 'sum_total'])
+
+        # writer.writerows (account_data)       
+        
+total_credit_sum = sum(float(credit['sum']) for credit in credit_data)
+account_data[0]['amount'] = str(float(account_data[0]['amount']) - total_credit_sum)    
+
+      
+
+def calculate_credit():
+    for credit in credit_data:
+        if float(credit['sum']) > 0:
+            monthly_payment = end_sum / (float(credit['term']) * 12) 
+            account_id = int(credit['id'])
+            for account in account_data:
+                if int(account['id']) == account_id:
+                    account['amount'] = str(float(account['amount']) - monthly_payment)
+                    if float(account['amount']) < 0:
+                        print(f"Дорогой клиент, {account_id} погасите ваш кредит. Сумма задолженности {credit['sum']}")
+                    else:
+                        account_data[0]['amount'] = str(float(account_data[0]['amount']) + monthly_payment)
+                        for dicto in credit_data + account_data:
+                            dicto["months_counter"] -= 1
+    write_to_file(account_data)
+
+    
+import csv
+
+def calculate_deposits(deposit_data, account_data):
+    for deposit in deposit_data:
+        if deposit['term'] > 0:
+            # Рассчитываем сумму, которую надо добавлять в месяц
+            sum_to_add = end_sum / (deposit['term'] * 12)
+            for account in account_data:
+                if str(deposit['id']) == account['id']:
+                    # Добавляем сумму на счет клиента и списываем со счета банка
+                    account['amount'] = str(float(account['amount']) - sum_to_add)
+                    account['sum_total'] = str(float(account['sum_total']) + sum_to_add)
+                    account['months_counter'] = int(account['months_counter']) - 1
+                    
+write_to_file(account_data)
+
+while True:
+    for dictor in credit_data:
+        if dictor["months_counter"] < 0:
+            print(f"Расчёт окончен")
+            break
+        else:  
+            calculate_credit()
+            calculate_deposits(deposit_data, account_data)
+            time.sleep(10)    
