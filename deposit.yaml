@@ -8,11 +8,11 @@
   term: 0
 - id: 3
   percent: 10
-  sum: 6910.7115135781005
+  sum: 10000
   term: 2
 - id: 8
   percent: 11
-  sum: 13302.892694422808
+  sum: 20000
   term: 4
 - id: 5
   percent: 0
@@ -28,11 +28,11 @@
   term: 0
 - id: 4
   percent: 11
-  sum: 133028.92694422815
+  sum: 200000
   term: 2
 - id: 7
   percent: 11
-  sum: 332572.3173605704
+  sum: 500000
   term: 3
 - id: 10
   percent: 0
