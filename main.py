@@ -30,11 +30,16 @@ def load_data():
     total_credit_sum = sum(float(credit['sum']) for credit in credit_data)
     account_data[0]['amount'] = str(float(account_data[0]['amount']) - total_credit_sum) 
 
+    for i in credit_data + account_data:
+        i["months"] = 12
+        i["months_counter"] = 12       
+       
     # Расчёт и запись значения sum_total в account_data
     for account in account_data:
             sum_total = float(credit['sum']) * float(credit['term'])
             account["sum_total"] = str(sum_total)
-    return credit_data, deposit_data, account_data           
+    return credit_data, deposit_data, account_data   
+    
     
 def write_to_file(account_data):
     with open('account.csv', 'w') as f:
@@ -59,7 +64,7 @@ def calculate_credit(id, credit_data, account_data, sum_total_data):
                         else:
                             account_data[0]['amount'] = str(float(account_data[0]['amount']) + monthly_payment)
                             for dicto in credit_data + account_data:
-                                dicto["months_counter"] -= 1
+                                dicto['months_counter'] = int(dicto['months_counter']) - 1
                     else:
                         print(f"Дорогой клиент, {account_id} у вас отрицательный баланс на счету, пожалуйста, пополните его")
     
@@ -70,7 +75,7 @@ def calculate_credit(id, credit_data, account_data, sum_total_data):
         sum_total = float(credit['sum']) * float(credit['term'])
         sum_total_data[account_id] = str(sum_total)
 
-def calculate_deposits(deposit_data, account_data):
+def calculate_deposits(deposit_data, account_data, credit_data):
     for deposit in deposit_data:
         if deposit['term'] > 0:
             for credit in credit_data:
@@ -104,7 +109,7 @@ def main():
                     account["sum_total"] = sum_total_data[account_id]
 
             calculate_credit(id=None, credit_data=credit_data, account_data=account_data, sum_total_data=sum_total_data)
-            calculate_deposit(deposit_data=deposit_data, account_data=account_data)
+            calculate_deposits(deposit_data=deposit_data, account_data=account_data, credit_data=credit_data)
         time.sleep(10)
 
 if __name__ == '__main__':
