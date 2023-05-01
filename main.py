@@ -1,117 +1,180 @@
+import abc
 import json
+
+class BankProduct(abc.ABC):
+    def __init__(self, entity_id, percent, sum, term):
+        self._id = entity_id
+        self._percent = percent
+        self._sum = sum
+        self._term = term
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def percent(self):
+        return self._percent
+
+    @property
+    def sum(self):
+        return self._sum
+
+    @property
+    def term(self):
+        return self._term
+    
+    @property
+    def end_sum(self):
+        return self._sum * (1 + self._percent / 100) ** self._term
+    
+    @abc.abstractmethod
+    def process(self):
+        pass
+    
 import csv
-import yaml
+
+class Credit(BankProduct):
+    def __init__(self, entity_id, percent, sum, term):
+        super().__init__(entity_id, percent, sum, term)
+        self._closed = False
+        self._periods = self.sum * 12
+        
+    @property
+    def periods(self):
+        return self._periods
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @property
+    def monthly_fee(self):
+        return self.end_sum / (self.sum * 12)
+
+    def process(self):
+        if not self.closed:
+            with open('transactions.csv', mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([self.id, self.monthly_fee, 'subtract'])
+                writer.writerow([0, self.monthly_fee, 'add'])
+            self._periods -= 1
+            if self._periods == 0:
+                self._closed = True
+
+class Deposit(BankProduct):
+        
+    def __init__(self, entity_id, percent, sum, term):
+        super().__init__(entity_id, percent, sum, term)
+        self._closed = False
+        self._periods = self.sum * 12
+        
+    @property
+    def periods(self):
+        return self._periods
+    
+    @property
+    def closed(self):
+        return self._closed
+    
+    @property
+    def monthly_fee(self):
+        return self.end_sum / (self.sum * 12)
+    
+    def process(self):
+        if not self.closed:
+            with open('transactions.csv', mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([self.id, self.monthly_fee, 'subtract'])
+                writer.writerow([0, self.monthly_fee, 'add'])
+            self._periods -= 1
+            if self._periods == 0:
+                self._closed = True
+
 import time
+import json
+with open('credits_deposits.json', 'r') as file:
+    data = json.load(file) 
+print(data)
+# Создаем объеты кредита и депозита
+credits = []
+deposits = []
+  
+# Извлекаем список кредитов и депозитов из словаря data
+credit_data = data.get('credit', [])
+deposit_data = data.get('deposit', [])
 
-def load_data():
-    # Открываем и считываем информацию из файлов
-    with open('credit.json') as f:
-        credit_data = json.load(f)
+# Создаем объекты кредитов и добавляем их в список credits
+for entity in credit_data:
+    credit = Credit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+    credits.append(credit)
 
-    with open('deposit.yaml') as f:
-        deposit_data = yaml.load(f, Loader=yaml.FullLoader)
+# Создаем объекты депозитов и добавляем их в список deposits
+for entity in deposit_data:
+    deposit = Deposit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+    deposits.append(deposit)
 
-    with open('account.csv') as f:
-        reader = csv.DictReader(f)
-        account_data = list(csv.DictReader(f))
+# Вызываем метод process каждый месяц = 10 сек
+while True:
+    time.sleep(10)  
+    for credit in credits:
+        credit.process()
+        if credit.closed:
+            credits.remove(credit)
+    for deposit in deposits:
+        deposit.process()
+        if deposit.closed:
+            deposits.remove(deposit)
 
-    # Сортируем списки по возрастанию id
-    credit_data = sorted(credit_data, key=lambda x: x['id'])
-    deposit_data = sorted(deposit_data, key=lambda x: x['id'])
-    account_data = sorted(account_data, key=lambda x: int(x['id']))
+    # Записываем новые данные 
+    data = [{'id': credit.id, 'percent': credit.percent, 'sum': credit.sum, 'term': credit.term, 'type': 'credit'} for credit in credits] + [{'id': deposit.id, 'percent': deposit.percent, 'sum': deposit.sum, 'term': deposit.term, 'type': 'deposit'} for deposit in deposits]
+    with open('credits_deposits.json', 'w') as file:
+        json.dump(data, file)
 
-    #Обогaщаем наш дикт данными по
-    #итоговой сумме + сколько месяцев длится наш кредит
-    for credit in credit_data:
-        #Расчёт сложного процента
-        credit['sum_total'] = credit['sum']*(1+credit["percent"]/100) ** credit['term']
-        #Сколько месяцев у нас длится наш кредит
-        credit['months_counter'] = credit["term"]*12
+# with open('credits_deposits.json', 'r') as file:
+#     data = json.load(file)
 
-    #Обогaщаем наш дикт данными по
-    #итоговой сумме + сколько месяцев длится наш депозит
-    for deposit in deposit_data:
-        #Расчёт сложного процента
-        deposit['sum_total'] = deposit['sum']*(1+deposit["percent"]/100) ** deposit['term']
-        #Сколько месяцев у нас длится наш депозит
-        deposit['months_counter'] = deposit["term"]*12
+# credits = []
+# deposits = []
 
-    #Расчитаем сумму которую мы должны отнять cо
-    #счёта банка
-    total_credit_sum = sum(float(credit['sum']) for credit in credit_data)
-    account_data[0]['amount'] = float(account_data[0]['amount']) - total_credit_sum
+# # Создаем объекты кредитов и добавляем их в список credits
+# for entity in data['credit']:
+#     credit = Credit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+#     credits.append(credit)
 
-    # Идём по списку кредитов
-    # и добавляем сумму кредита на счёт клиентов
-    for credit in credit_data:
-      if credit['sum'] > 0:
-        for account in account_data:
-          if credit['id'] == int(account['id']):
-            account['amount'] = int(account['amount']) + int(credit['sum'])
-
-
-    return credit_data, deposit_data, account_data
-
-def write_to_file(account_data):
-    with open('account.csv', 'w') as f:
-        writer = csv.DictWriter(f, fieldnames=['id', 'amount'])
-        writer.writeheader()
-        writer.writerows (account_data)
-
-def calculate_credit(credit_data, account_data):
-    for credit in credit_data:
-        account_id = int(credit['id'])
-        #Идём дальше только если у клиента есть кредит
-        #и счётчик месяцев не равен 0
-        if float(credit['sum']) > 0 and credit["months_counter"] != 0:
-            #Расчёт месечного платежа
-            monthly_payment = round(float(credit['sum_total']) / (float(credit['term']) * 12), 2)
-            #Идём по нашим счетам
-            for account in account_data:
-                #Находим счёт с id клинета
-                if int(account['id']) == account_id:
-                    current_amount = float(account['amount'])
-                    #вычитаем со счёта клиента месячный платёж
-                    account['amount'] = current_amount  - monthly_payment
-                    credit["months_counter"] -= 1
-                    if float(account['amount']) > 0: # проверяем, что счет клиента больше 0
-                        #Добавляем сумму на счёт банкa
-                        account_data[0]['amount'] = float(account_data[0]['amount']) + monthly_payment
-                    else:
-                        #Добавляем остаток на счёте
-                        #в случаях когда сумма на счёте была
-                        #чуть меньше monthly_payment
-                        if current_amount > 0:
-                          account_data[0]['amount'] = float(account_data[0]['amount']) + current_amount
-                        #Печатаем сколько клиент должен заплатить ещё. Берём по модулю сумму на счёте
-                        print(f"Дорогой клиент, {account_id} Сумма задолженности {abs(account['amount'])}")
+# # Создаем объекты депозитов и добавляем их в список deposits
+# for entity in data['deposit']:
+#     deposit = Deposit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+#     deposits.append(deposit)  
     
-    write_to_file(account_data)
+# while True:
+#     # Обрабатываем кредиты и депозиты каждый месяц
+#     while credits or deposits:
+#         # Обрабатываем кредиты
+#         for credit in credits:
+#             credit.process()
+#             if credit.closed:
+#                 credits.remove(credit)
+#         # Обрабатываем депозиты
+#         for deposit in deposits:
+#             deposit.process()
+#             if deposit.closed:
+#                 deposits.remove(deposit)
 
-def calculate_deposit(deposit_data, account_data):
-    for deposit in deposit_data:
-        account_id = int(deposit['id'])
-        #Идём дальше только если у клиента есть депозит 
-        #и счётчик месяцев не равен 0
-        if deposit['sum'] > 0 and deposit["months_counter"] != 0:
-                sum_to_add = float(deposit['sum_total']) / (deposit['term'] * 12) # Рассчитываем сумму, которую надо добавлять в месяц
-                for account in account_data:
-                    if str(deposit['id']) == account['id']:
-                        # Добавляем сумму на счет клиента и списываем со счета банка
-                        account['amount'] = str(float(account['amount']) + sum_to_add)
-                        account_data[0]['amount'] = str(float(account_data[0]['amount']) - sum_to_add)
-                        deposit['months_counter'] -= 1
+#     # Сохраняем данные в файл
+#     data = {'credit': [], 'deposit': []}
+#     for credit in credits:
+#         credit_dict = {'entity_id': credit.id, 'percent': credit.percent, 'sum': credit.sum, 'term': credit.term}
+#         data['credit'].append(credit_dict)
+#     for deposit in deposits:
+#         deposit_dict = {'entity_id': deposit.id, 'percent': deposit.percent, 'sum': deposit.sum, 'term': deposit.term}
+#         data['deposit'].append(deposit_dict)
+#     with open('credits_deposits.json', 'w') as file:
+#         json.dump(data, file)
 
-    write_to_file(account_data)
+#     time.sleep(10)
 
-def main():
-    credit_data, deposit_data, account_data = load_data()
+
+
     
-    while True:
-      calculate_credit(credit_data, account_data)
-      calculate_deposit(deposit_data, account_data)
-      time.sleep(1)
-
-if __name__ == '__main__':
-    main()  
-    
+        
