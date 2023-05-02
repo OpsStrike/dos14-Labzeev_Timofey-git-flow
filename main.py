@@ -37,9 +37,8 @@ import csv
 class Credit(BankProduct):
     def __init__(self, entity_id, percent, sum, term):
         super().__init__(entity_id, percent, sum, term)
-        self._closed = False
         self._periods = self.sum * 12
-        
+        self._closed = False
     @property
     def periods(self):
         return self._periods
@@ -51,17 +50,25 @@ class Credit(BankProduct):
     @property
     def monthly_fee(self):
         return self.end_sum / (self.sum * 12)
+    
+    def to_dict(self):
+        return {
+            'entity_id': self.id,
+            'percent': self.percent,
+            'sum': self.sum,
+            'term': self.term
+        }
 
     def process(self):
         if not self.closed:
-            with open('transactions.csv', mode='w', newline='') as file:
+            with open('transactions.csv', mode='a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([self.id, self.monthly_fee, 'subtract'])
+                writer.writerow([self.id, self.monthly_fee, 'substract'])
                 writer.writerow([0, self.monthly_fee, 'add'])
             self._periods -= 1
             if self._periods == 0:
                 self._closed = True
-
+                
 class Deposit(BankProduct):
         
     def __init__(self, entity_id, percent, sum, term):
@@ -81,55 +88,129 @@ class Deposit(BankProduct):
     def monthly_fee(self):
         return self.end_sum / (self.sum * 12)
     
+    def to_dict(self):
+        return {
+            'entity_id': self.id,
+            'percent': self.percent,
+            'sum': self.sum,
+            'term': self.term
+        }
+    
     def process(self):
         if not self.closed:
-            with open('transactions.csv', mode='w', newline='') as file:
+            with open('transactions.csv', mode='a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([self.id, self.monthly_fee, 'subtract'])
-                writer.writerow([0, self.monthly_fee, 'add'])
+                writer.writerow([self.id, self.monthly_fee, 'add'])
+                writer.writerow([0, self.monthly_fee, 'substract'])
             self._periods -= 1
             if self._periods == 0:
                 self._closed = True
-
+    
+    
+                
 import time
 import json
-with open('credits_deposits.json', 'r') as file:
-    data = json.load(file) 
-print(data)
-# Создаем объеты кредита и депозита
-credits = []
-deposits = []
-  
-# Извлекаем список кредитов и депозитов из словаря data
-credit_data = data.get('credit', [])
-deposit_data = data.get('deposit', [])
 
-# Создаем объекты кредитов и добавляем их в список credits
-for entity in credit_data:
-    credit = Credit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
-    credits.append(credit)
-
-# Создаем объекты депозитов и добавляем их в список deposits
-for entity in deposit_data:
-    deposit = Deposit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
-    deposits.append(deposit)
-
-# Вызываем метод process каждый месяц = 10 сек
 while True:
-    time.sleep(10)  
-    for credit in credits:
-        credit.process()
-        if credit.closed:
-            credits.remove(credit)
+    # Загружаем текущие данные из файла
+    with open('credits_deposits.json', 'r') as file:
+        data = json.load(file)
+
+    # Создаем списки для хранения объектов кредитов и депозитов
+    credits = []
+    deposits = []
+
+    # Создаем объекты кредитов и добавляем их в список credits
+    for entity in data.get('credit', []):
+        credit = Credit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+        credits.append(credit)
+
+    # Создаем объекты депозитов и добавляем их в список deposits
+    for entity in data.get('deposit', []):
+        deposit = Deposit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+        deposits.append(deposit)
+
+    # Обрабатываем и удаляем закрытые депозиты
+    deposits_to_remove = []
     for deposit in deposits:
         deposit.process()
         if deposit.closed:
-            deposits.remove(deposit)
+            deposits_to_remove.append(deposit)
 
-    # Записываем новые данные 
-    data = [{'id': credit.id, 'percent': credit.percent, 'sum': credit.sum, 'term': credit.term, 'type': 'credit'} for credit in credits] + [{'id': deposit.id, 'percent': deposit.percent, 'sum': deposit.sum, 'term': deposit.term, 'type': 'deposit'} for deposit in deposits]
+    for deposit in deposits_to_remove:
+        deposits.remove(deposit)
+
+    # Обрабатываем и удаляем закрытые кредиты
+    credits_to_remove = []
+    for credit in credits:
+        credit.process()
+        if credit.closed:
+            credits_to_remove.append(credit)
+
+    for credit in credits_to_remove:
+        credits.remove(credit)
+
+    # Создаем список словарей с открытыми кредитами
+    credit_dicts = [credit.to_dict() for credit in credits]
+
+    # Создаем список словарей с открытыми депозитами
+    deposit_dicts = [deposit.to_dict() for deposit in deposits]
+
+    # Обновляем данные в словаре и записываем их в файл
+    data = {"credit": credit_dicts, "deposit": deposit_dicts}
+
     with open('credits_deposits.json', 'w') as file:
         json.dump(data, file)
+
+    time.sleep(10)
+
+
+
+
+
+
+
+
+# # Вызываем метод process каждый месяц = 10 сек
+# while True:
+#     with open('credits_deposits.json', 'r') as file:
+#         data1 = json.load(file)    
+#         # print(data)
+#     credits = []
+#     deposits = []
+
+#     # Извлекаем список кредитов и депозитов из словаря data
+#     credit_data = data1.get('credit', [])
+#     deposit_data = data1.get('deposit', [])
+
+#     # Создаем объекты кредитов и добавляем их в список credits
+#     for entity in credit_data:
+#         credit = Credit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+#         credits.append(credit)
+
+#     # Создаем объекты депозитов и добавляем их в список deposits
+#     for entity in deposit_data:
+#         deposit = Deposit(entity['entity_id'], entity['percent'], entity['sum'], entity['term'])
+#         deposits.append(deposit)
+#         for credit in credits:
+#             credit.process()
+#             if credit.closed:
+#                 credits.remove(credit)
+#         for deposit in deposits:
+#             deposit.process()
+#             if deposit.closed:
+#                 deposits.remove(deposit)
+                
+#         # Записываем новые данные 
+#         data = {"credit": [{"entity_id": credit.id, "percent": credit.percent, "sum": credit.sum, "term": credit.term} for credit in credits], "deposit": [{"entity_id": deposit.id, "percent": deposit.percent, "sum": deposit.sum, "term": deposit.term} for deposit in deposits]}
+#         with open('credits_deposits.json', 'w') as file:
+#             json.dump(data, file)
+#         time.sleep(10)      
+        
+        
+        
+        
+        
 
 # with open('credits_deposits.json', 'r') as file:
 #     data = json.load(file)
