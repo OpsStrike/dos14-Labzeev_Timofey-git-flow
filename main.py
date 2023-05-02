@@ -113,7 +113,7 @@ import json
 while True:
     with open('credits_deposits.json', 'r') as file:
         data1 = json.load(file)
-
+    print(data1)
     # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
     credits = [Credit(entity['entity_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('credit', [])]
     deposits = [Deposit(entity['entity_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('deposit', [])]
@@ -129,8 +129,9 @@ while True:
     deposits = [deposit for deposit in deposits if not deposit.closed]
 
     # Записываем новые данные 
-    data = {"credits": [credit.to_dict() for credit in credits], 
-            "deposits": [deposit.to_dict() for deposit in deposits]}
+    data = {"credit": [credit.to_dict() for credit in credits], 
+            "deposit": [deposit.to_dict() for deposit in deposits]}
+    print(data)
     with open('credits_deposits.json', 'w') as file:
         json.dump(data, file)
 
