@@ -43,3 +43,67 @@ README.md
 - использовал black
 - переименовал файл
 
+## Homework 18
+
+## _Task_
+- Создать класс BankProduct
+
+- задать свойства entity_id, percent, term, sum
+
+- задать свойство end_sum Расчёт сложного процента (используя свойства объекта)
+
+- свойства эти должны быть только на чтение
+
+- создать метод process он должен быть абстрактным те никакой конкретной реализации не должно быть
+
+- Создать класс Credit
+
+- Унаследоваться от BankProduct
+
+- Создать свойство только на чтение periods = term*12
+
+- Создать свойство только на чтение closed = False
+
+- Создать свойство monthly_fee = end_sum / term*12
+
+- Реализовать метод process
+
+- Записать транзакции в файл transactions.csv
+
+- user_id,monthly_fee,'substract'
+
+- 0,monthly_fee,'add'
+
+- Уменьшить priods на 1
+
+- Если periods == 0 то closed = True
+
+- Создать класс Deposit
+
+- Унаследоваться от BankProduct
+
+- Создать свойство только на чтение periods = term*12
+
+- Создать свойство только на чтение closed = False
+
+- Создать свойство monthly_fee = end_sum / term*12
+
+- Реализовать метод process
+
+- Записать транзакции в файл transactions.csv
+
+- user_id,monthly_fee,'add'
+
+- 0,monthly_fee,'substract'
+
+- Уменьшить priods на 1
+
+- Если periods == 0 то closed = True
+
+- Из базы данных credits_deposits.json получить данные
+
+- На их основании создать объекты Кредитов и депозитов
+
+- Каждый месяц вызывать у этих объектов метод process
+
+- Если кредит, депозит закрыт удаляем его из списка и пишем в бд (файл credits_deposits.json)
