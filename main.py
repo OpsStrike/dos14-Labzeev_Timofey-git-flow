@@ -179,20 +179,39 @@ def get_all_credits():
 
 @app.route('/api/v1/credits', methods=['PUT'])
 def create_new_credit():
-    client_id = request.json.get('client_id')
-    percent = request.json.get('percent')
-    sum = request.json.get('sum')
-    term = request.json.get('term')
-    
+    # Получаем данные из запроса
+    credit_data = request.get_json()
+    client_id = credit_data.get('client_id')
+    percent = credit_data.get('percent')
+    sum = credit_data.get('sum')
+    term = credit_data.get('term')
+
+    # Проверяем наличие обязательных полей
     if not all((client_id, percent, sum, term)):
         return make_response(jsonify({
             "status": "error",
             "message": "Отсутствуют обязательные параметры"
         }), 400)
-    
-    client = AccountClient()
-    client.add_new_credit(client_id, percent, sum, term)
-    
+
+    # Проверяем, если ли уже кредит для данного клиента
+    with open("credits_deposits.yaml", "r") as f:
+        credits_data = yaml.safe_load(f)
+        if str(client_id) in credits_data.keys():
+            return make_response(jsonify({
+                "status": "error",
+                "message": f"Credit for client {client_id} already exists"
+            }), 400)
+
+    # Добавляем кредитный продукт и сохраняем данные в файл YAML
+    credit_product = {
+        "client_id": client_id,
+        "percent": percent,
+        "sum": sum,
+        "term": term
+    }
+    with open("credits_deposits.yaml", "a") as f:
+        yaml.dump({str(client_id): credit_product}, f)
+
     return make_response(jsonify({
         "status": "success",
         "message": "Кредит успешно создан"
