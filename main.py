@@ -1,6 +1,10 @@
 import abc
 import json
+from flask import Flask, make_response, request, jsonify
+import yaml
 from account_clients import AccountClient
+# Создаем Flask приложение
+app = Flask(__name__)
 
 class BankProduct(abc.ABC):
     def __init__(self, client_id, percent, sum, term):
@@ -116,9 +120,7 @@ class Deposit(BankProduct):
             if self._periods == 0:
                 self._closed = True
 
-from flask import Flask, make_response, request, jsonify
-import yaml
-
+#####################FLASK##########################################
 with open('credits_deposits.yaml', 'r') as f:
     data = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -126,66 +128,85 @@ with open('credits_deposits.yaml', 'r') as f:
 credits = data['credit']
 deposits = data['deposit']
 
-# Создаем Flask приложение
-app = Flask(__name__)
-
-# GET /api/v1/credits/<client_id>
-@app.route('/api/v1/credits/<client_id>', methods=['GET'])
+# Получаем кредит клиента по его Id
+@app.route('/api/v1/credits/<int:client_id>', methods=['GET'])
 def get_credits(client_id):
-    if client_id in credits:
-        return jsonify(credits[client_id])
+    credits_of_client = [credit for credit in credits if credit['client_id'] == client_id]
+    if len(credits_of_client) == 0:
+        error_massage = f"client {client_id} does not have active credits"
+        return jsonify({"status": "error", "message": error_massage}), 404
     else:
-        return jsonify({'status': 'error', 'message': f'Client {client_id} does not have active credits'}), 404
-
-@app.route('/api/v1/deposits/<client_id>', methods=['GET'])
+        return jsonify(credits_of_client)
+        
+    
+# Получаем депозит клиента по его id
+@app.route('/api/v1/deposits/<int:client_id>', methods=['GET'])
 def get_deposit(client_id):
-    if client_id not in deposits:
-        return jsonify({"status": "error", "message": f"Client {client_id} does not have active deposits"}), 404
+    deposits_of_client = [deposit for deposit in deposits if deposit['client_id'] == client_id]
+    if len(deposits_of_client) == 0:
+        error_message = f"Client {client_id} does not have active deposits"
+        return jsonify({"status": "error", "message": error_message}), 404
     else:
-        return jsonify(deposits[client_id])
+        return jsonify(deposits_of_client)
 
-@app.route('/api/v1/deposits', methods=['GET'])
+#Получаем все депозиты
+@app.route('/api/v1/deposits/all', methods=['GET'])
 def get_all_deposits():
     return jsonify(deposits)
-
-@app.route('/api/v1/credits', methods=['GET'])
+#Получаем все кредиты
+@app.route('/api/v1/credits/all', methods=['GET'])
 def get_all_credits():
     return jsonify(credits)
 
 # Создаем новый кредит с проверкой на существование до этого и пишем в файл
 @app.route('/api/v1/credits', methods=['PUT'])
 def create_credit():
-    client_id = request.json.get('client_id')
-    percent = request.json.get('percent')
-    sum = request.json.get('sum')
-    term = request.json.get('term')
-    
-    if client_id in credits:
-        return make_response(jsonify({"status": "error", "message": f"Credit for client {client_id} already exists"}), 400)
-    
+    # Получаем данные из запроса в формате JSON
+    data = request.json
+    client_id = data['client_id']
+    percent = data['percent']
+    sum = data['sum']
+    term = data['term']
+
+    with open('credits_deposits.yaml', 'r') as f:
+        file_data = yaml.safe_load(f)
+    credits1 = file_data['credit']
+    # Проверяем, существует ли уже кредит для данного клиента
+    for credit in credits1:
+        if credit['client_id'] == client_id:
+            return make_response(jsonify({'status': 'error', 'message': f'Credit for client {client_id} already exists'}), 400)
+
+    # Добавляем новый кредит в список credits
     new_credit = {
-        "client_id": client_id,
-        "percent": percent,
-        "sum": sum,
-        "term": term
+        'client_id': client_id,
+        'percent': percent,
+        'sum': sum,
+        'term': term
     }
-    credits[client_id] = new_credit
-    
+    credits1.append(new_credit)
+    file_data['credit'] = credits1
     with open('credits_deposits.yaml', 'w') as f:
-        yaml.dump({'credit': credits, 'deposit': deposits}, f)
-    
-    return make_response(jsonify({"status": "success", "message": f"Credit for client {client_id} created"}), 201)
+        yaml.dump(file_data, f)
+
+    return jsonify({'status': 'ok', 'message': f'Credit added for client {client_id}'}), 201
 
 #Создаем новый депозит с проверкой существует ли он уже и записываем в файл
 @app.route('/api/v1/deposits', methods=['PUT'])
 def create_deposit():
-    client_id = request.json.get('client_id')
-    percent = request.json.get('percent')
-    sum = request.json.get('sum')
-    term = request.json.get('term')
+    # Получаем данные из запроса в формате JSON
+    data = request.json
+    client_id = data['client_id']
+    percent = data['percent']
+    sum = data['sum']
+    term = data['term']
     
-    if client_id in deposits:
-        return make_response(jsonify({"status": "error", "message": f"Deposit for client {client_id} already exists"}), 400)
+    with open('credits_deposits.yaml', 'r') as f:
+        file_data = yaml.safe_load(f)
+    deposits1 = file_data['deposit']
+    
+    for deposit in deposits:
+        if deposit['client_id'] == client_id:
+            return make_response(jsonify({"status": "error", "message": f"Deposit for client {client_id} already exists"}), 400)
     
     new_deposit = {
         "client_id": client_id,
@@ -193,20 +214,20 @@ def create_deposit():
         "sum": sum,
         "term": term
     }
-    deposits[client_id] = new_deposit
-    
+    deposits1.append(new_deposit)
+    file_data['deposit'] = deposits1
     with open('credits_deposits.yaml', 'w') as f:
-        yaml.dump({'credit': credits, 'deposit': deposits}, f)
+        yaml.dump(file_data, f)
     
-    return make_response(jsonify({"status": "success", "message": f"Deposit for client {client_id} created"}), 201)
-
+    return jsonify({"status": "success", "message": f"Deposit for client {client_id} created"}), 201
+#####################FLASK##########################################
 
 import threading
 
 def process_credits_and_deposits():
     
-    with open('credits_deposits.yaml', 'r') as file:
-        data1 = json.load(file)
+    with open('credits_deposits.yaml', 'r') as f:
+        data1 = yaml.load(f, Loader=yaml.FullLoader)
         
     # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
     credits = [Credit(entity['client_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('credit', [])]
@@ -231,9 +252,13 @@ def process_credits_and_deposits():
         new_data = {"credit": [credit.to_dict() for credit in credits], 
                 "deposit": [deposit.to_dict() for deposit in deposits]}
         
-        time.sleep(1)
+        with open('credits_deposits.yaml', 'w') as f:
+            yaml.dump(new_data, f)
+        
+        time.sleep(10)
     
-credit_deposit_thread = threading.Tread(target=process_credits_and_deposits)
+credit_deposit_thread = threading.Thread(target=process_credits_and_deposits)
 credit_deposit_thread.start()
+
 if __name__ == '__main__':
     app.run()  
