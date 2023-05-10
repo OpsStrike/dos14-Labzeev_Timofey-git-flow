@@ -1,5 +1,6 @@
 import abc
 import json
+from account_clients import AccountClient
 
 class BankProduct(abc.ABC):
     def __init__(self, client_id, percent, sum, term):
@@ -78,7 +79,6 @@ class Deposit(BankProduct):
         self._closed = False
         self._periods = self.term * 12
         
-    
 # При инициализации Deposit создаём объект AccountClient и меняем в нём withdraw на False
         client = AccountClient(self.client_id)
         client.withdraw = False
@@ -116,136 +116,124 @@ class Deposit(BankProduct):
             if self._periods == 0:
                 self._closed = True
 
-from flask import Flask, abort, make_response, request, jsonify
-from account_clients import AccountClient
+from flask import Flask, make_response, request, jsonify
 import yaml
 
+with open('credits_deposits.yaml', 'r') as f:
+    data = yaml.load(f, Loader=yaml.FullLoader)
+
+# Создаем переменные для кредитов и депозитов
+credits = data['credit']
+deposits = data['deposit']
+
+# Создаем Flask приложение
 app = Flask(__name__)
-@app.route('/api/v1/credits/<string:client_id>', methods=['GET'])
-def credits(client_id):
-    # Создаем объект AccountClient для доступа к данным клиентов
-    client = AccountClient()
-    
-    # Получаем данные о кредите для данного клиента
-    credit_info = client.get_client_credits(client_id)
-    
-    # Если кредит не найден, возвращаем ошибку 404
-    if not credit_info:
-        error_message = {"status": "error", "message": f"Client {client_id} does not have active credits"}
-        return make_response(jsonify(error_message), 404)
-    # Если данные о кредите найдены, возвращаем их в формате JSON
-    return jsonify(credit_info)
+
+# GET /api/v1/credits/<client_id>
+@app.route('/api/v1/credits/<client_id>', methods=['GET'])
+def get_credits(client_id):
+    if client_id in credits:
+        return jsonify(credits[client_id])
+    else:
+        return jsonify({'status': 'error', 'message': f'Client {client_id} does not have active credits'}), 404
 
 @app.route('/api/v1/deposits/<client_id>', methods=['GET'])
-def get_client_deposit(client_id):
-    client = AccountClient()
-    
-    client_deposit = client.get_client_deposits(client_id)
-    if client_deposit is not None:
-        client_deposit['withdraw'] = False
-    
-    if not client_deposit:
-        return make_response(jsonify({
-            "status": "error",
-            "message": f"Client {client_id} does not have active deposits"
-        }), 404)
-    
+def get_deposit(client_id):
+    if client_id not in deposits:
+        return jsonify({"status": "error", "message": f"Client {client_id} does not have active deposits"}), 404
+    else:
+        return jsonify(deposits[client_id])
 
 @app.route('/api/v1/deposits', methods=['GET'])
 def get_all_deposits():
-    client = AccountClient()
-    all_deposits = client.get_all_deposits()
-   
-    if not all_deposits:
-        return make_response(jsonify({
-            "status": "error",
-            "message": "No active deposits found"
-        }), 404)
-    
-    return jsonify(all_deposits)
+    return jsonify(deposits)
 
 @app.route('/api/v1/credits', methods=['GET'])
 def get_all_credits():
-    client = AccountClient()
-    all_credits = client.get_all_credits()
-    
-    if not all_credits:
-        return make_response(jsonify({
-            "status": "error",
-            "message": "No active credits found"
-        }), 404)
-    
-    return jsonify(all_credits)
+    return jsonify(credits)
 
+# Создаем новый кредит с проверкой на существование до этого и пишем в файл
 @app.route('/api/v1/credits', methods=['PUT'])
-def create_new_credit():
-    # Получаем данные из запроса
-    credit_data = request.get_json()
-    client_id = credit_data.get('client_id')
-    percent = credit_data.get('percent')
-    sum = credit_data.get('sum')
-    term = credit_data.get('term')
-
-    # Проверяем наличие обязательных полей
-    if not all((client_id, percent, sum, term)):
-        return make_response(jsonify({
-            "status": "error",
-            "message": "Отсутствуют обязательные параметры"
-        }), 400)
-
-    # Проверяем, если ли уже кредит для данного клиента
-    with open("credits_deposits.yaml", "r") as f:
-        credits_data = yaml.safe_load(f)
-        if str(client_id) in credits_data.keys():
-            return make_response(jsonify({
-                "status": "error",
-                "message": f"Credit for client {client_id} already exists"
-            }), 400)
-
-    # Добавляем кредитный продукт и сохраняем данные в файл YAML
-    credit_product = {
+def create_credit():
+    client_id = request.json.get('client_id')
+    percent = request.json.get('percent')
+    sum = request.json.get('sum')
+    term = request.json.get('term')
+    
+    if client_id in credits:
+        return make_response(jsonify({"status": "error", "message": f"Credit for client {client_id} already exists"}), 400)
+    
+    new_credit = {
         "client_id": client_id,
         "percent": percent,
         "sum": sum,
         "term": term
     }
-    with open("credits_deposits.yaml", "a") as f:
-        yaml.dump({str(client_id): credit_product}, f)
-
-    return make_response(jsonify({
-        "status": "success",
-        "message": "Кредит успешно создан"
-    }), 201)
+    credits[client_id] = new_credit
     
+    with open('credits_deposits.yaml', 'w') as f:
+        yaml.dump({'credit': credits, 'deposit': deposits}, f)
     
+    return make_response(jsonify({"status": "success", "message": f"Credit for client {client_id} created"}), 201)
+
+#Создаем новый депозит с проверкой существует ли он уже и записываем в файл
+@app.route('/api/v1/deposits', methods=['PUT'])
+def create_deposit():
+    client_id = request.json.get('client_id')
+    percent = request.json.get('percent')
+    sum = request.json.get('sum')
+    term = request.json.get('term')
     
-with open('credits_deposits.json', 'r') as file:
-    data1 = json.load(file)
+    if client_id in deposits:
+        return make_response(jsonify({"status": "error", "message": f"Deposit for client {client_id} already exists"}), 400)
     
-# Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-credits = [Credit(entity['client_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('credit', [])]
-deposits = [Deposit(entity['client_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('deposit', [])]
-
-import time
-import json
-# Вызываем метод process каждый месяц = 10 сек
-while True:
-
-    # Обрабатываем кредиты и депозиты
-    for credit in credits:
-        credit.process()
-    for deposit in deposits:
-        deposit.process()
-
-    # Удаляем закрытые кредиты и депозиты
-    credits = [credit for credit in credits if not credit.closed]
-    deposits = [deposit for deposit in deposits if not deposit.closed]
-
-    #Записываем новые данные 
-    new_data = {"credit": [credit.to_dict() for credit in credits], 
-            "deposit": [deposit.to_dict() for deposit in deposits]}
+    new_deposit = {
+        "client_id": client_id,
+        "percent": percent,
+        "sum": sum,
+        "term": term
+    }
+    deposits[client_id] = new_deposit
     
-    time.sleep(1)
+    with open('credits_deposits.yaml', 'w') as f:
+        yaml.dump({'credit': credits, 'deposit': deposits}, f)
     
+    return make_response(jsonify({"status": "success", "message": f"Deposit for client {client_id} created"}), 201)
 
+
+import threading
+
+def process_credits_and_deposits():
+    
+    with open('credits_deposits.yaml', 'r') as file:
+        data1 = json.load(file)
         
+    # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
+    credits = [Credit(entity['client_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('credit', [])]
+    deposits = [Deposit(entity['client_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('deposit', [])]
+
+    import time
+
+    # Вызываем метод process каждый месяц = 10 сек
+    while True:
+
+        # Обрабатываем кредиты и депозиты
+        for credit in credits:
+            credit.process()
+        for deposit in deposits:
+            deposit.process()
+
+        # Удаляем закрытые кредиты и депозиты
+        credits = [credit for credit in credits if not credit.closed]
+        deposits = [deposit for deposit in deposits if not deposit.closed]
+
+        #Записываем новые данные 
+        new_data = {"credit": [credit.to_dict() for credit in credits], 
+                "deposit": [deposit.to_dict() for deposit in deposits]}
+        
+        time.sleep(1)
+    
+credit_deposit_thread = threading.Tread(target=process_credits_and_deposits)
+credit_deposit_thread.start()
+if __name__ == '__main__':
+    app.run()  
