@@ -42,12 +42,17 @@ class BankProduct(abc.ABC):
 class Credit(BankProduct):
     def __init__(self, client_id, percent, sum, term):
         super().__init__(client_id, percent, sum, term)
-        self._periods = self.term * 12
         self._closed = False
+        self._periods = self.term * 12
+        
     @property
     def periods(self):
         return self._periods
     
+    @periods.setter
+    def periods(self, value):
+        self._periods = value
+        
     @property
     def closed(self):
         return self._closed
@@ -131,12 +136,16 @@ deposits = data['deposit']
 # Получаем кредит клиента по его Id
 @app.route('/api/v1/credits/<int:client_id>', methods=['GET'])
 def get_credits(client_id):
+    with open('credits_deposits.yaml', 'r') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+        
+    credits = [credit for credit in data.get('credit', [])]
     credits_of_client = [credit for credit in credits if credit['client_id'] == client_id]
     if len(credits_of_client) == 0:
         error_massage = f"client {client_id} does not have active credits"
         return jsonify({"status": "error", "message": error_massage}), 404
     else:
-        return jsonify(credits_of_client)
+        return jsonify(credits_of_client[0])
         
     
 # Получаем депозит клиента по его id
@@ -154,6 +163,7 @@ def get_deposit(client_id):
 def get_all_deposits():
     return jsonify(deposits)
 #Получаем все кредиты
+
 @app.route('/api/v1/credits/all', methods=['GET'])
 def get_all_credits():
     return jsonify(credits)
@@ -167,7 +177,8 @@ def create_credit():
     percent = data['percent']
     sum = data['sum']
     term = data['term']
-
+    periods = data['periods']
+    
     with open('credits_deposits.yaml', 'r') as f:
         file_data = yaml.safe_load(f)
     credits1 = file_data['credit']
@@ -181,7 +192,8 @@ def create_credit():
         'client_id': client_id,
         'percent': percent,
         'sum': sum,
-        'term': term
+        'term': term,
+        'periods': periods
     }
     credits1.append(new_credit)
     file_data['credit'] = credits1
@@ -199,12 +211,13 @@ def create_deposit():
     percent = data['percent']
     sum = data['sum']
     term = data['term']
+    periods = data['periods']
     
     with open('credits_deposits.yaml', 'r') as f:
         file_data = yaml.safe_load(f)
     deposits1 = file_data['deposit']
     
-    for deposit in deposits:
+    for deposit in deposits1:
         if deposit['client_id'] == client_id:
             return make_response(jsonify({"status": "error", "message": f"Deposit for client {client_id} already exists"}), 400)
     
@@ -212,7 +225,8 @@ def create_deposit():
         "client_id": client_id,
         "percent": percent,
         "sum": sum,
-        "term": term
+        "term": term,
+        'periods': periods
     }
     deposits1.append(new_deposit)
     file_data['deposit'] = deposits1
