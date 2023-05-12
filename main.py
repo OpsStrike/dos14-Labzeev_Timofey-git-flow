@@ -139,12 +139,12 @@ class Deposit(BankProduct):
                 self._closed = True
 
 #####################FLASK##########################################
-with open('credits_deposits.yaml', 'r') as f:
-    data = yaml.load(f, Loader=yaml.FullLoader)
+# with open('credits_deposits.yaml', 'r') as f:
+#     data = yaml.load(f, Loader=yaml.FullLoader)
 
-# Создаем переменные для кредитов и депозитов
-credits = data['credit']
-deposits = data['deposit']
+# # Создаем переменные для кредитов и депозитов
+# credits = data['credit']
+# deposits = data['deposit']
 
 # Получаем кредит клиента по его Id
 @app.route('/api/v1/credits/<int:client_id>', methods=['GET'])
@@ -267,17 +267,18 @@ import threading
 
 def process_credits_and_deposits():
     
-    with open('credits_deposits.yaml', 'r') as f:
-        data1 = yaml.load(f, Loader=yaml.FullLoader)
-        
-    # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-    credits = [Credit(entity['client_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('credit', [])]
-    deposits = [Deposit(entity['client_id'], entity['percent'], entity['sum'], entity['term']) for entity in data1.get('deposit', [])]
-
+    
     import time
 
     # Вызываем метод process каждый месяц = 10 сек
     while True:
+        
+        with open('credits_deposits.yaml', 'r') as f:
+            data1 = yaml.load(f, Loader=yaml.FullLoader)
+        
+        # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
+        credits = [Credit(entity['client_id'], entity['percent'], entity['sum'], entity['term'], entity['periods']) for entity in data1.get('credit', [])]
+        deposits = [Deposit(entity['client_id'], entity['percent'], entity['sum'], entity['term'], entity['periods']) for entity in data1.get('deposit', [])]
 
         # Обрабатываем кредиты и депозиты
         for credit in credits:
@@ -297,7 +298,8 @@ def process_credits_and_deposits():
             yaml.dump(new_data, f)
         
         time.sleep(10)
-    
+
+        
 credit_deposit_thread = threading.Thread(target=process_credits_and_deposits)
 credit_deposit_thread.start()
 
