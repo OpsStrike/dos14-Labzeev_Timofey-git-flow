@@ -40,11 +40,14 @@ class BankProduct(abc.ABC):
 
 
 class Credit(BankProduct):
-    def __init__(self, client_id, percent, sum, term):
-        super().__init__(client_id, percent, sum, term)
+    def __init__(self, client_id, percent, sum, term, periods=-1):
+        super().__init__(client_id, percent, sum, term)                
         self._closed = False
-        self._periods = self.term * 12
-        
+        if periods == -1:
+            self._periods = self.term * 12
+        else:
+            self._periods = periods
+                
     @property
     def periods(self):
         return self._periods
@@ -66,7 +69,8 @@ class Credit(BankProduct):
             'client_id': self.id,
             'percent': self.percent,
             'sum': self.sum,
-            'term': self.term
+            'term': self.term,
+            'periods': self.periods
         }
 
     def process(self):
@@ -83,10 +87,14 @@ class Credit(BankProduct):
                                      
 class Deposit(BankProduct):
         
-    def __init__(self, client_id, percent, sum, term):
+    def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
         self._closed = False
-        self._periods = self.term * 12
+        if periods == -1:
+            self._periods = self.term * 12
+        else:
+            self._periods = periods
+        
         
 # При инициализации Deposit создаём объект AccountClient и меняем в нём withdraw на False
         client = AccountClient(self.client_id)
@@ -99,6 +107,10 @@ class Deposit(BankProduct):
     def periods(self):
         return self._periods
     
+    @periods.setter
+    def periods(self, value):
+        self._periods = value
+            
     @property
     def closed(self):
         return self._closed
@@ -112,7 +124,8 @@ class Deposit(BankProduct):
             'client_id': self.id,
             'percent': self.percent,
             'sum': self.sum,
-            'term': self.term
+            'term': self.term,
+            'periods': self.periods
         }
     
     def process(self):
@@ -188,7 +201,7 @@ def create_credit():
     percent = data['percent']
     sum = data['sum']
     term = data['term']
-    
+    periods = data['periods']
     
     with open('credits_deposits.yaml', 'r') as f:
         file_data = yaml.safe_load(f)
@@ -205,6 +218,7 @@ def create_credit():
         'percent': percent,
         'sum': sum,
         'term': term,
+        'periods': periods
         
     }
     credits1.append(new_credit)
@@ -223,6 +237,7 @@ def create_deposit():
     percent = data['percent']
     sum = data['sum']
     term = data['term']
+    periods = data['periods']
    
     
     with open('credits_deposits.yaml', 'r') as f:
@@ -238,7 +253,7 @@ def create_deposit():
         "percent": percent,
         "sum": sum,
         "term": term,
-        
+        "periods": periods
     }
     deposits1.append(new_deposit)
     file_data['deposit'] = deposits1
