@@ -139,13 +139,6 @@ class Deposit(BankProduct):
                 self._closed = True
 
 #####################FLASK##########################################
-# with open('credits_deposits.yaml', 'r') as f:
-#     data = yaml.load(f, Loader=yaml.FullLoader)
-
-# # Создаем переменные для кредитов и депозитов
-# credits = data['credit']
-# deposits = data['deposit']
-
 # Получаем кредит клиента по его Id
 @app.route('/api/v1/credits/<int:client_id>', methods=['GET'])
 def get_credits(client_id):
