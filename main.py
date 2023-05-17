@@ -77,9 +77,11 @@ class Credit(BankProduct):
     def process(self):
         if not self.closed:
             client = AccountClient(self.client_id)
+            bank = AccountClient(0)
             client.transaction(self.sum)
             client.transaction(-self.monthly_fee)
             client.transaction(self.monthly_fee, 0)
+            bank.transaction(self.monthly_fee, 0)
 
         self._periods -= 1
         if self._periods == 0:
@@ -292,10 +294,12 @@ import threading
 
 
 def process_credits_and_deposits():
+
     import time
 
     # Вызываем метод process каждый месяц = 10 сек
     while True:
+
         with open("credits_deposits.yaml", "r") as f:
             data1 = yaml.load(f, Loader=yaml.FullLoader)
 
