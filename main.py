@@ -78,10 +78,8 @@ class Credit(BankProduct):
         if not self.closed:
             client = AccountClient(self.client_id)
             bank = AccountClient(0)
-            client.transaction(self.sum)
-            client.transaction(-self.monthly_fee)
-            client.transaction(self.monthly_fee, 0)
-            bank.transaction(self.monthly_fee, 0)
+            client.transaction(substract=self.monthly_fee)
+            bank.transaction(add=self.monthly_fee)
 
         self._periods -= 1
         if self._periods == 0:
@@ -132,8 +130,9 @@ class Deposit(BankProduct):
     def process(self):
         if not self.closed:
             client = AccountClient(self.client_id)
-            client.transaction(self.monthly_fee)
-            client.transaction(-self.monthly_fee, 0)
+            bank = AccountClient(0)
+            client.transaction(add=self.monthly_fee)
+            bank.transaction(substract=self.monthly_fee)
 
             self._periods -= 1
             if self._periods == 0:
