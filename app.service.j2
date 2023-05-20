@@ -1,0 +1,11 @@
+[Unit]
+Description=My Flask App
+After=network.target
+
+[Service]
+User=bank
+WorkingDirectory=/home/bank/app
+ExecStart=/usr/bin/poetry run flask --app main.py run
+
+[Install]
+WantedBy=multi-user.target

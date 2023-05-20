@@ -1,0 +1,111 @@
+- hosts: myhost
+  become: true
+
+  tasks:
+    - name: Создание пользователя 'bank'
+      user:
+        name: bank
+        state: present
+        create_home: yes
+        groups: tima1
+
+    - name: Установка прав для домашнего каталога пользователя 'bank'
+      file:
+        path: "/home/bank"
+        mode: "0777"
+        state: directory
+
+    - name: Установка Git
+      apt:
+        name: git
+        state: present
+
+    - name: Установка зависимостей Poetry
+      apt:
+        name: curl
+        state: present
+
+    - name: Установка Python 3.11.3
+      apt:
+        name: python3.11
+        state: present
+
+    - name: Установка pyenv
+      become_user: bank
+      git:
+        repo: https://github.com/pyenv/pyenv.git
+        dest: /home/bank/.pyenv
+        version: master
+        update: no
+      register: pyenv_clone
+
+    - name: Добавление pyenv в переменные среды
+      lineinfile:
+        dest: /home/bank/.bashrc
+        line: 'export PYENV_ROOT="/home/bank/.pyenv"'
+        insertafter: 'export PATH="$HOME/.poetry/bin:$PATH"'
+      when: pyenv_clone.changed
+
+    - name: Добавление pyenv в переменные среды (continued)
+      lineinfile:
+        dest: /home/bank/.bashrc
+        line: 'export PATH="$PYENV_ROOT/bin:$PATH"'
+        insertafter: 'export PYENV_ROOT="/home/bank/.pyenv"'
+      when: pyenv_clone.changed
+
+    - name: Обновление переменных среды
+      shell: source /home/bank/.bashrc
+      args:
+        executable: /bin/bash
+
+    - name: Установка Python 3.11.3 с помощью pyenv
+      shell: /home/bank/.pyenv/bin/pyenv install 3.11.3
+      args:
+        executable: /bin/bash
+      register: pyenv_install
+
+
+    - name: Обновление переменных среды
+      shell: source /home/bank/.bashrc
+      args:
+        executable: /bin/bash
+      when: pyenv_install.changed
+
+
+    - name: Установка Python 3.11.3 как глобальной версии
+      shell: pyenv global 3.11.3
+      args:
+        executable: /bin/bash
+      when: pyenv_install.changed
+
+    - name: Обновление переменных среды
+      shell: source /home/bank/.bashrc
+      args:
+        executable: /bin/bash
+      when: pyenv_install.changed
+
+    - name: Клонирование репозитория
+      git:
+        repo: https://github.com/OpsStrike/dos14-Labzeev_Timofey-git-flow.git
+        dest: /home/bank/app
+        version: master
+
+    - name: Установка зависимостей проекта
+      shell: |
+        cd /home/bank/app
+        /home/bank/.poetry/bin/poetry install
+      args:
+        executable: /bin/bash
+
+    - name: Создание systemd-сервиса
+      template:
+        src: templates/app.service.j2
+        dest: /etc/systemd/system/app.service
+      notify:
+        - restart app
+
+  handlers:
+    - name: Перезапуск сервиса
+      systemd:
+        name: app
+        state: restarted
