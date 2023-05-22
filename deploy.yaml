@@ -2,110 +2,134 @@
   become: true
 
   tasks:
-    - name: Создание пользователя 'bank'
+    - name: Create 'bank' user and add to 'tima1' group
       user:
         name: bank
-        state: present
-        create_home: yes
         groups: tima1
+        state: present
 
-    - name: Установка прав для домашнего каталога пользователя 'bank'
+    - name: Install ansible package
+      apt:
+        name: ansible
+        state: present
+
+    - name: Create 'ansible' directory in the repository
       file:
-        path: "/home/bank"
-        mode: "0777"
+        path: /home/bank/ansible
         state: directory
 
-    - name: Установка Git
+    - name: Install git 2.40.1
       apt:
         name: git
         state: present
 
-    - name: Установка зависимостей Poetry
+    - name: Install pyenv dependencies
       apt:
-        name: curl
+        name: "{{ item }}"
         state: present
+      loop:
+        - make
+        - build-essential
+        - libssl-dev
+        - zlib1g-dev
+        - libbz2-dev
+        - libreadline-dev
+        - libsqlite3-dev
+        - wget
+        - curl
+        - llvm
+        - libncurses5-dev
+        - xz-utils
+        - tk-dev
+        - libxml2-dev
+        - libxmlsec1-dev
+        - libffi-dev
+        - liblzma-dev
 
-    - name: Установка Python 3.11.3
-      apt:
-        name: python3.11
-        state: present
-
-    - name: Установка pyenv
+    - name: Install pyenv
       become_user: bank
-      git:
-        repo: https://github.com/pyenv/pyenv.git
-        dest: /home/bank/.pyenv
-        version: master
-        update: no
-      register: pyenv_clone
-
-    - name: Добавление pyenv в переменные среды
-      lineinfile:
-        dest: /home/bank/.bashrc
-        line: 'export PYENV_ROOT="/home/bank/.pyenv"'
-        insertafter: 'export PATH="$HOME/.poetry/bin:$PATH"'
-      when: pyenv_clone.changed
-
-    - name: Добавление pyenv в переменные среды (continued)
-      lineinfile:
-        dest: /home/bank/.bashrc
-        line: 'export PATH="$PYENV_ROOT/bin:$PATH"'
-        insertafter: 'export PYENV_ROOT="/home/bank/.pyenv"'
-      when: pyenv_clone.changed
-
-    - name: Обновление переменных среды
-      shell: source /home/bank/.bashrc
+      shell: curl https://pyenv.run | bash
       args:
         executable: /bin/bash
+        creates: /home/bank/.pyenv
+
+    - name: Add pyenv path to PATH
+      lineinfile:
+        dest: /home/bank/.bashrc
+        line: 'export PATH="$HOME/.pyenv/bin:$PATH"'
+        state: present
 
     - name: Установка Python 3.11.3 с помощью pyenv
-      shell: /home/bank/.pyenv/bin/pyenv install 3.11.3
+      become_user: bank
+      shell: ~/.pyenv/bin/pyenv versions | grep -q 3.11.3 || ~/.pyenv/bin/pyenv install 3.11.3
       args:
         executable: /bin/bash
-      register: pyenv_install
+      changed_when: false
 
+    - name: Проверка установленной глобальной версии Python
+      stat:
+        path: /home/bank/.pyenv/version
+      register: pyenv_global_version
 
-    - name: Обновление переменных среды
-      shell: source /home/bank/.bashrc
+    - name: Установка глобальной версии Python с помощью pyenv
+      become_user: bank
+      shell: /home/bank/.pyenv/bin/pyenv global 3.11.3
       args:
         executable: /bin/bash
-      when: pyenv_install.changed
+      when: pyenv_global_version.stat.exists == False
+      changed_when: false
+      tags:
+        - always
+    
+    - name: True Global
+      debug:
+        msg: "OK"
+      when: pyenv_global_version.stat.exists == True
+      tags:
+        - always
 
+    - name: Install pip
+      apt:
+        name: python3-pip
+        state: present
 
-    - name: Установка Python 3.11.3 как глобальной версии
-      shell: pyenv global 3.11.3
-      args:
-        executable: /bin/bash
-      when: pyenv_install.changed
+    - name: Install poetry
+      pip:
+        name: poetry
+        state: present
 
-    - name: Обновление переменных среды
-      shell: source /home/bank/.bashrc
-      args:
-        executable: /bin/bash
-      when: pyenv_install.changed
-
-    - name: Клонирование репозитория
+    - name: Clone repository
       git:
         repo: https://github.com/OpsStrike/dos14-Labzeev_Timofey-git-flow.git
-        dest: /home/bank/app
+        dest: /home/bank/git
         version: master
+        force: yes
 
-    - name: Установка зависимостей проекта
+    - name: Install project dependencies with poetry
       shell: |
-        cd /home/bank/app
-        /home/bank/.poetry/bin/poetry install
+        cd /home/bank/git
+        poetry env use /home/bank/.pyenv/versions/3.11.3/bin/python
+        poetry lock
+        poetry install
       args:
         executable: /bin/bash
 
-    - name: Создание systemd-сервиса
-      template:
-        src: templates/app.service.j2
-        dest: /etc/systemd/system/app.service
-      notify:
-        - restart app
+    - name: Copy app.service.j2 file
+      copy:
+        src: /home/tima/ansible/templates/app.service.j2
+        dest: /etc/systemd/system/flask.service
+        owner: root
+        group: root
+        mode: '0644'
 
-  handlers:
-    - name: Перезапуск сервиса
+    - name: Configure systemd service
       systemd:
-        name: app
-        state: restarted
+        name: flask.service
+        enabled: yes
+        state: started
+        daemon_reload: yes
+
+    - name: Start systemd service
+      systemd:
+        name: flask.service
+        state: started
