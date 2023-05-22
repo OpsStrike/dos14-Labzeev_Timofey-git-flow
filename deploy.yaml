@@ -56,12 +56,12 @@
     - name: Add pyenv path to PATH
       lineinfile:
         dest: /home/bank/.bashrc
-        line: 'export PATH="$HOME/.pyenv/bin:$PATH"'
+        line: 'export PATH="/home/bank/.pyenv/bin:$PATH"'
         state: present
 
     - name: Установка Python 3.11.3 с помощью pyenv
       become_user: bank
-      shell: ~/.pyenv/bin/pyenv versions | grep -q 3.11.3 || ~/.pyenv/bin/pyenv install 3.11.3
+      shell: ~/.pyenv/bin/pyenv versions | grep -q 3.11.3 || /home/bank/.pyenv/bin/pyenv install 3.11.3
       args:
         executable: /bin/bash
       changed_when: false
@@ -113,6 +113,7 @@
         poetry install
       args:
         executable: /bin/bash
+      changed_when: false
 
     - name: Copy app.service.j2 file
       copy:
