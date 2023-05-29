@@ -1,7 +1,7 @@
 - name: Main of all
-  hosts: myhost
+  hosts: all
   become: true
-    
+      
   roles:
     - role: bank
     - role: pyenv

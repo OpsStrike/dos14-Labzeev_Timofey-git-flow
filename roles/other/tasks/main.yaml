@@ -4,6 +4,7 @@
     state: present
 
 - name: Install poetry
+  become_user: bank
   pip:
     name: poetry
     state: present
@@ -16,6 +17,7 @@
     force: yes
 
 - name: Install project dependencies with poetry
+  become: true
   shell: |
     cd /home/bank/git
     poetry install
@@ -24,8 +26,8 @@
   changed_when: false
 
 - name: Copy app.service.j2 file
-  copy:
-    src: /home/tima/ansible/roles/other/templates/app.service.j2
+  template:
+    src: templates/app.service.j2
     dest: /etc/systemd/system/flask.service
     owner: root
     group: root
@@ -37,9 +39,10 @@
     enabled: yes
     state: started
     daemon_reload: yes
-
+    
 - name: Start systemd service
   systemd:
     name: flask.service
     state: started
+    
 

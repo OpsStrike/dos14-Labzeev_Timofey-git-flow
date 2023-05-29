@@ -4,9 +4,6 @@
     groups: root
     state: present
 
-- name: Create 'ansible' directory in the repository
-  file:
-    path: /home/bank/ansible
-    state: directory
+
     
 
