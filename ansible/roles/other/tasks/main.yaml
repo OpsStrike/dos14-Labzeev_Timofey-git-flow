@@ -1,0 +1,48 @@
+- name: Install pip
+  apt:
+    name: python3-pip
+    state: present
+
+- name: Install poetry
+  become_user: bank
+  pip:
+    name: poetry
+    state: present
+
+- name: Clone repository
+  git:
+    repo: https://github.com/OpsStrike/dos14-Labzeev_Timofey-git-flow.git
+    dest: /home/bank/git
+    version: master
+    force: yes
+
+- name: Install project dependencies with poetry
+  become: true
+  shell: |
+    cd /home/bank/git
+    poetry install
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Copy app.service.j2 file
+  template:
+    src: templates/app.service.j2
+    dest: /etc/systemd/system/flask.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Configure systemd service
+  systemd:
+    name: flask.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+    
+- name: Start systemd service
+  systemd:
+    name: flask.service
+    state: started
+    
+
