@@ -8,16 +8,19 @@
   pip:
     name: poetry
     state: present
-
+  
+  
 - name: Clone repository
+  become_user: bank
   git:
     repo: https://github.com/OpsStrike/dos14-Labzeev_Timofey-git-flow.git
     dest: /home/bank/git
     version: master
     force: yes
 
+
 - name: Install project dependencies with poetry
-  become: true
+  become_user: bank
   shell: |
     cd /home/bank/git
     poetry install
