@@ -8,8 +8,15 @@
   pip:
     name: poetry
     state: present
-  
-  
+    
+- name: Change ownership of /home/bank/git directory
+  file:
+    path: /home/bank/git
+    owner: bank
+    group: bank
+    recurse: yes
+
+
 - name: Clone repository
   become_user: bank
   git:
@@ -18,17 +25,17 @@
     version: master
     force: yes
 
-
 - name: Install project dependencies with poetry
   become_user: bank
   shell: |
+    source /home/bank/.bashrc
     cd /home/bank/git
     poetry install
   args:
     executable: /bin/bash
   changed_when: false
 
-- name: Copy app.service.j2 file
+- name: app.service.j2 file
   template:
     src: templates/app.service.j2
     dest: /etc/systemd/system/flask.service
