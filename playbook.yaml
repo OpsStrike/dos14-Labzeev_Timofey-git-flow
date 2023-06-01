@@ -1,5 +1,9 @@
 - name: Main of all
   hosts: all
+  vars_prompt:
+    - name: "username"
+      prompt: "enter username"
+      private: no
   become: true
       
   roles:

@@ -1,15 +1,15 @@
 - name: Create 'bank' user and add to 'root' group
   user:
-    name: bank
+    name: "{{ username }}"
     groups: root
     state: present
     shell: /bin/bash
-    home: /home/bank
-
+    home: /home/{{ username }}
+    
 - name: Add user to sudoers file
   lineinfile:
     dest: /etc/sudoers
-    line: 'bank ALL=(ALL:ALL) ALL'
+    line: '{{ username }} ALL=(ALL:ALL) ALL'
     validate: 'visudo -cf %s'    
 
 
