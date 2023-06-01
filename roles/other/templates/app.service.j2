@@ -5,8 +5,10 @@ After=network.target
 [Service]
 User=bank
 WorkingDirectory=/home/bank/git
-ExecStart=/bin/bash -c "source /home/bank/.poetry/env && poetry run flask --app main.py run"
+Environment=VENV_PATH=/home/bank/.cache/pypoetry/virtualenvs/python-test-*-py3.11
+ExecStart=/bin/bash -c "source $VENV_PATH/bin/activate && flask --app main.py run"
 
 [Install]
 WantedBy=multi-user.target
+
 
