@@ -6,3 +6,4 @@
     - role: bank
     - role: pyenv
     - role: other
+    - role: docker
