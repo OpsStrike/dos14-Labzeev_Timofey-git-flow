@@ -5,7 +5,6 @@
     group: "{{ username }}"
     recurse: yes
 
-
 - name: Clone repository
   become_user: "{{ username }}"
   git:
@@ -34,8 +33,6 @@
     group: "{{ username }}"
     mode: '0644'
     
-
-
 - name: Configure systemd service
   systemd:
     name: flask.service
