@@ -1,9 +1,0 @@
-- name: Main of all
-  hosts: all
-  become: true
-      
-  roles:
-    - role: bank
-    - role: pyenv
-    - role: other
-    - role: docker

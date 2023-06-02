@@ -1,9 +1,0 @@
-- name: Create 'bank' user and add to 'root' group
-  user:
-    name: bank
-    groups: root
-    state: present
-
-
-    
-
