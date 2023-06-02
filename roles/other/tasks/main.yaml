@@ -12,6 +12,7 @@
     dest: /home/{{ username }}/git
     version: master
     force: yes
+  changed_when: false
 
 - name: Install project dependencies with poetry
   become_user: "{{ username }}"

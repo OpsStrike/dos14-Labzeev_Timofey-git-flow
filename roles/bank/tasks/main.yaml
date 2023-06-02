@@ -1,7 +1,8 @@
 - name: Create 'bank' user and add to 'root' group
   user:
     name: "{{ username }}"
-    groups: root
+    groups: sudo
+    append: yes
     state: present
     shell: /bin/bash
     home: /home/{{ username }}
