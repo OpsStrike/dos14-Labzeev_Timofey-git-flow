@@ -1,4 +1,5 @@
 - name: install dependencies
+  become: true
   apt:
     name: "{{item}}"
     state: present
@@ -44,5 +45,12 @@
       - docker-ce-cli
       - containerd.io
       - docker-buildx-plugin
-      - docker-compose-plugin
     state: present
+    
+- name: Install Docker Compose
+  become: true
+  shell: |
+    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
+    chmod +x /usr/local/bin/docker-compose
+  changed_when: false
+
