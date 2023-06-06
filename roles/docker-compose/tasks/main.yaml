@@ -2,22 +2,27 @@
   become: true
   become_user: "{{ username }}"
   command: docker build -t pythonapp:v0.2.0 /home/{{ username }}/git
-
+  
 - name: Install Docker Compose
   become: true
+  become_user: "{{ username }}"
   pip:
     name: docker-compose
     state: present
 
-
 - name: Run Docker Compose
   become: true
-  docker_compose:
-    project_src: /home/{{ username }}/git/docker-compose.yaml
-    state: present
-  vars:
-    docker_compose_version: "2.18.1"
-    ansible_python_interpreter: /usr/bin/python3
+  block:
+    - name: Execute Docker Compose
+      command:
+        cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d
+        chdir: /home/bank/git
+      vars:
+        docker_compose_version: "2.18.1"
+        ansible_python_interpreter: /usr/bin/python3
+
+
+
 
 
 
