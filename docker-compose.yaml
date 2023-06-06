@@ -4,7 +4,7 @@ services:
   pythonapp:
     image: pythonapp:v0.2.0
     ports:
-      - "5000:5000"
+      - "80:80"
     volumes:
       - CDdata:/home/bank/git
 
