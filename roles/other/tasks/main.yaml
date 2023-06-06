@@ -10,40 +10,10 @@
   git:
     repo: https://github.com/OpsStrike/dos14-Labzeev_Timofey-git-flow.git
     dest: /home/{{ username }}/git
-    version: master
+    version: feature-hw-25
     force: yes
   changed_when: false
 
-- name: Install project dependencies with poetry
-  become_user: "{{ username }}"
-  shell: |
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-    cd /home/{{ username }}/git
-    poetry install
-  args:
-    executable: /bin/bash
-  changed_when: false
 
-- name: app.service.j2 file
-  template:
-    src: templates/app.service.j2
-    dest: /etc/systemd/system/flask.service
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: '0644'
-    
-- name: Configure systemd service
-  systemd:
-    name: flask.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-    
-- name: Start systemd service
-  systemd:
-    name: flask.service
-    state: started
     
 

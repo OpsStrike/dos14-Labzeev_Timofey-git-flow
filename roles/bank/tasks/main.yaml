@@ -13,6 +13,12 @@
     line: '{{ username }} ALL=(ALL:ALL) ALL'
     validate: 'visudo -cf %s'    
 
+- name: Add user to Docker group
+  become: true
+  user:
+    name: "{{ username }}"
+    groups: docker
+    append: yes
 
 
     

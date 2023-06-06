@@ -11,3 +11,4 @@
     - role: pyenv
     - role: other
     - role: docker
+    - role: docker-compose
