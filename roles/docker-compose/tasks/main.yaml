@@ -6,7 +6,7 @@
 - name: Run Docker Compose
   become: true
   docker_compose:
-    project_src: /home/{{ username }}/docker-compose.yaml
+    project_src: /home/{{ username }}/git/docker-compose.yaml
     state: started
 
   
