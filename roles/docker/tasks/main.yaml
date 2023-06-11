@@ -8,6 +8,13 @@
     - ca-certificates
     - curl
     - gnupg-agent
+    
+- name: Install Docker for ansible
+  become: true
+  become_user: "{{ username }}"
+  pip:
+    name: docker
+    state: present
         
 - name: Set up Docker apt keyrings
   become: true
@@ -18,10 +25,9 @@
 
 - name: Download Docker GPG key
   become: true
-  get_url:
+  apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
-    dest: /etc/apt/keyrings/docker.gpg
-
+    
 - name: Set permissions for Docker GPG key
   become: true
   file:

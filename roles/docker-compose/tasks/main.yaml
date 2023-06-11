@@ -3,7 +3,7 @@
   become_user: "{{ username }}"
   command: docker build -t pythonapp:v0.2.0 /home/{{ username }}/git
   
-- name: Install Docker Compose
+- name: Install Docker Compose for ansible
   become: true
   become_user: "{{ username }}"
   pip:
@@ -17,9 +17,7 @@
       command:
         cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d
         chdir: /home/bank/git
-      vars:
-        docker_compose_version: "2.18.1"
-        ansible_python_interpreter: /usr/bin/python3
+      
 
 
 
