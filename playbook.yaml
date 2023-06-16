@@ -8,7 +8,7 @@
       
   roles:
     - role: bank
-    - role: pyenv
-    - role: other
+    - role: git
+    - role: clone repo
     - role: docker
     - role: docker-compose

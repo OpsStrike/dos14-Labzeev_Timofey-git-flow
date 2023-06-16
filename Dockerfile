@@ -6,6 +6,8 @@ WORKDIR /home/bank/git
 
 COPY --chown=bank:bank . .
 
+USER bank
+
 RUN poetry install
 
 ENTRYPOINT ["poetry", "run", "python", "main.py"]
