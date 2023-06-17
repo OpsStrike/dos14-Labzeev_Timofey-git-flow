@@ -141,6 +141,10 @@ class Deposit(BankProduct):
 
 #####################FLASK##########################################
 # Получаем кредит клиента по его Id
+@app.route("/api/v1/bank/health_check", methods=["GET"])
+def health_check():
+    return "", 200
+
 @app.route("/api/v1/credits/<int:client_id>", methods=["GET"])
 def get_credits(client_id):
     with open("credits_deposits.yaml", "r") as f:
