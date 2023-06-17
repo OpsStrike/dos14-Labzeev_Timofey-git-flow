@@ -10,7 +10,7 @@ COPY --chown=bank:bank . .
 
 USER bank
 
-RUN apt-get update && apt-get install -y nginx
+RUN apt update && apt install -y nginx
 
 RUN poetry install
 
