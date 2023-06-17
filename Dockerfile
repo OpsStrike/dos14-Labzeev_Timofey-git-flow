@@ -4,11 +4,11 @@ RUN pip install poetry && useradd -d /home/bank -U -m -u 1111 bank && mkdir /app
 
 WORKDIR /home/bank/git
 
+RUN echo "bank ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 COPY --chown=bank:bank . .
 
 USER bank
-
-RUN echo "bank ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 RUN apt-get update && apt-get install -y nginx
 
