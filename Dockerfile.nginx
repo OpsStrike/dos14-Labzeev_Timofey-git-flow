@@ -1,6 +1,6 @@
 FROM nginx
 
-useradd -d /home/bank -U -m -u 2222 bank
+RUN useradd -d /home/bank -U -m -u 2222 bank
 
 WORKDIR /home/bank/git
 
