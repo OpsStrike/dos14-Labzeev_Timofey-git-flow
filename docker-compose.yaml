@@ -5,11 +5,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-   
+    ports:
+      - "5000:5000"
     volumes:
       - CDdata:/home/bank/git
 
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - pythonapp
+
 volumes:
   CDdata:
+
 
 
