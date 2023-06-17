@@ -3,10 +3,18 @@ version: "3.4"
 services:
   pythonapp:
     image: pythonapp:v0.2.0
+    volumes:
+      - CDdata:/home/bank/git
+      
+  nginx:
+    image: nginx:latest
     ports:
       - "80:80"
     volumes:
-      - CDdata:/home/bank/git
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - CDdata:/app
+    depends_on:
+      - pythonapp
 
 volumes:
   CDdata:

@@ -11,6 +11,8 @@ USER bank
 
 RUN poetry install
 
+COPY nginx.conf /etc/nginx/nginx.conf
+
 EXPOSE 80
 
 CMD service nginx start && poetry run python main.py
