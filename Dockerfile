@@ -14,6 +14,6 @@ RUN poetry install
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+
 
 CMD ["poetry", "run", "python", "main.py"]
