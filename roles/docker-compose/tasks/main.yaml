@@ -1,7 +1,4 @@
-- name: Build Docker image
-  become: true
-  become_user: "{{ username }}"
-  command: docker build -t pythonapp:v0.2.0 /home/{{ username }}/git
+
   
 - name: Install Docker Compose for ansible
   become: true
