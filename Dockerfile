@@ -8,14 +8,15 @@ RUN echo "bank ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 COPY --chown=bank:bank . .
 
-USER bank
+USER root
 
-RUN apt update && apt install -y nginx
+RUN apt-get update && apt-get install -y nginx
 
 RUN poetry install
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-
+USER bank
 
 CMD ["poetry", "run", "python", "main.py"]
+
