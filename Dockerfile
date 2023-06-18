@@ -10,4 +10,6 @@ USER bank
 
 RUN poetry install
 
+EXPOSE 5001
+
 ENTRYPOINT ["poetry", "run", "python", "main.py"]
