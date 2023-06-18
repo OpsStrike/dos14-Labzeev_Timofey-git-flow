@@ -1,13 +1,5 @@
 FROM nginx
 
-RUN useradd -d /home/bank -U -m -u 2222 bank
-
-WORKDIR /home/bank/git
-
-COPY --chown=bank:bank . .
-
-USER bank
-
 COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
