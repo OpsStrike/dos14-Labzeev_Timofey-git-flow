@@ -1,3 +1,10 @@
+- name: Add user to Docker group
+  become: true
+  user:
+    name: "{{ username }}"
+    groups: docker
+    append: yes
+    
 - name: install dependencies
   become: true
   apt:
