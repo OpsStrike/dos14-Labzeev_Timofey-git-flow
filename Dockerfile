@@ -4,11 +4,9 @@ RUN pip install poetry && useradd -d /home/bank -U -m -u 1111 bank && mkdir /app
 
 WORKDIR /home/bank/git
 
-USER root
+USER bank
 
 COPY --chown=bank:bank . .
-
-USER bank
 
 RUN poetry install
 
