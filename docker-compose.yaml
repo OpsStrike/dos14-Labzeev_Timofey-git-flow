@@ -3,6 +3,7 @@ version: "3.4"
 services:
   pythonapp:
     image: pythonapp:v0.2.0
+    privileged: true
     ports:
       - "80:80"
     volumes:
