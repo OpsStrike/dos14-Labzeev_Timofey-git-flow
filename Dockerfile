@@ -8,9 +8,6 @@ WORKDIR /home/bank/git
 
 COPY --chown=bank:bank . .
 
-RUN find /home/bank/git -type d -exec chmod 755 {} \; && \
-    find /home/bank/git -type f -exec chmod 644 {} \;
-
 RUN poetry install
 
 ENTRYPOINT ["poetry", "run", "python", "main.py"]
