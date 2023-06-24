@@ -8,7 +8,7 @@ COPY --chown=bank:bank . .
 
 USER root
 
-RUN chmod -R o+w /home/bank/git
+RUN chmod -R 777 /home/bank/git
 
 USER bank
 
