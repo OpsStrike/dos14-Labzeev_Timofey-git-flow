@@ -2,11 +2,15 @@ FROM python:3.11-buster
 
 RUN pip install poetry && useradd -d /home/bank -U -m -u 1111 bank && mkdir /app
 
-USER bank
-
 WORKDIR /home/bank/git
 
 COPY --chown=bank:bank . .
+
+USER root
+
+RUN chmod -R o+w /home/bank/git
+
+USER bank
 
 RUN poetry install
 
