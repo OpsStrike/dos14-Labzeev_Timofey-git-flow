@@ -350,4 +350,4 @@ credit_deposit_thread = threading.Thread(target=process_credits_and_deposits)
 credit_deposit_thread.start()
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')
