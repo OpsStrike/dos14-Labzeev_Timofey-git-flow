@@ -8,8 +8,6 @@ COPY --chown=bank:bank . .
 
 USER bank
 
-RUN chmod -R u+w /home/bank/git
-
 RUN poetry install
 
-ENTRYPOINT ["poetry", "run", "python", "main.py"]
+ENTRYPOINT ["/bin/bash", "-c", "chmod -R u+w /home/bank/git && poetry run python main.py"]
