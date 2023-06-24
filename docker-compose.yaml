@@ -6,10 +6,6 @@ services:
     privileged: true
     ports:
       - "80:80"
-    volumes:
-      - CDdata:/home/bank/git
-
-volumes:
-  CDdata:
+   
 
 
