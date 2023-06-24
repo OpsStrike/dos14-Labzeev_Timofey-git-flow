@@ -6,6 +6,7 @@ services:
     privileged: true
     ports:
       - "80:5000"
+    network_mode: host
    
 
 
