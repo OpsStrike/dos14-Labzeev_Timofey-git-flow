@@ -8,7 +8,7 @@ COPY --chown=bank:bank . .
 
 USER root
 
-RUN chmod -R bank:bank /home/bank/gitt
+RUN chmod -R 777 /home/bank/gitt
 
 USER bank
 
