@@ -12,8 +12,6 @@ RUN chmod 777 /home/bank/git
 
 USER bank
 
-EXPOSE 80
-
 RUN poetry install
 
 ENTRYPOINT ["poetry", "run", "python", "main.py"]
