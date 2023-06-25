@@ -54,3 +54,9 @@
     chmod +x /usr/local/bin/docker-compose
   changed_when: false
 
+- name: Add user to Docker group
+  become: true
+  user:
+    name: "{{ username }}"
+    groups: docker
+    append: yes
