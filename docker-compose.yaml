@@ -5,11 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    expose:
-      - 5000
-    volumes:
-      - CDdata:/home/bank/git
-
+      privileged: true
+      ports:
+        - "80:5000"
+    
   nginx:
     build:
       context: .
@@ -19,8 +18,7 @@ services:
     depends_on:
       - pythonapp
 
-volumes:
-  CDdata:
+
 
 
 
