@@ -10,7 +10,7 @@ services:
       - 80:5000
     networks:
       app-network:
-        ipv4_address: 172.18.0.10
+        ipv4_address: 172.25.0.10
 
   nginx:
     container_name: nginx
@@ -21,15 +21,15 @@ services:
       - pythonapp
     networks:
       app-network:
-        ipv4_address: 172.18.0.11
+        ipv4_address: 172.25.0.11
 
 networks:
   app-network:
     ipam:
       driver: default
       config:
-        - subnet: 172.18.0.0/16
-          gateway: 172.18.0.1
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1
 
 
 
