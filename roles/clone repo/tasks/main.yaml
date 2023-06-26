@@ -13,6 +13,12 @@
     version: feature-hw-26
     force: yes
   changed_when: false
+  
+- name: Create logs Dir
+  file:
+    path: /home/bank/git/logs
+    state: directory
+    mode: '0777'
 
 
     
