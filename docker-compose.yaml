@@ -6,8 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 80:5000
+    
     networks:
       app-network:
         ipv4_address: 172.25.0.10
