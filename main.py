@@ -201,20 +201,11 @@ def get_all_credits():
 @app.route("/api/v1/credits", methods=["PUT"])
 def create_credit():
     # Получаем данные из запроса в формате JSON
-    
-    if request.json:
-        data = request.json
-        client_id = data["client_id"]
-        percent = data["percent"]
-        sum = data["sum"]
-        term = data["term"]
-        periods = data["periods"]
-    else:
-        client_id = request.args.get('client_id')
-        percent = request.args.get('percent')
-        sum = request.args.get('sum')
-        term = request.args.get('term')
-        periods = request.args.get('periods')
+    client_id = request.args.get('client_id')
+    percent = request.args.get('percent')
+    sum = request.args.get('sum')
+    term = request.args.get('term')
+    periods = request.args.get('periods')
 
     with open("credits_deposits.yaml", "r") as f:
         file_data = yaml.safe_load(f)
@@ -256,12 +247,11 @@ def create_credit():
 @app.route("/api/v1/deposits", methods=["PUT"])
 def create_deposit():
     # Получаем данные из запроса в формате JSON
-    data = request.json
-    client_id = data["client_id"]
-    percent = data["percent"]
-    sum = data["sum"]
-    term = data["term"]
-    periods = data["periods"]
+    client_id = request.args.get('client_id')
+    percent = request.args.get('percent')
+    sum = request.args.get('sum')
+    term = request.args.get('term')
+    periods = request.args.get('periods')
 
     with open("credits_deposits.yaml", "r") as f:
         file_data = yaml.safe_load(f)
