@@ -107,3 +107,8 @@ README.md
 - Каждый месяц вызывать у этих объектов метод process
 
 - Если кредит, депозит закрыт удаляем его из списка и пишем в бд (файл credits_deposits.json)
+
+
+## Homework 26
+- ссылка на создание кредита или депозита curl -X PUT "localhost/api/v1/deposits?client_id=25&percent=15&sum=1000&term=2&periods=-1"
+- Если не работает nginx проверять default.conf /etc/nginx/conf.d/
