@@ -22,6 +22,9 @@ services:
     networks:
       app-network:
         ipv4_address: 172.25.0.11
+    volumes:
+      - /home/bank/git/logs:/var/log/nginx
+
 
 networks:
   app-network:
