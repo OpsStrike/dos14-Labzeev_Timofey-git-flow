@@ -2,7 +2,6 @@ version: "3.4"
           
 services:
   pythonapp:
-<<<<<<< HEAD
     container_name: bank-service
     build:
       context: .
@@ -39,12 +38,11 @@ networks:
 
 
 
-=======
+
     image: pythonapp:v0.2.0
     privileged: true
     ports:
       - "80:5000"
-   
->>>>>>> develop
+
 
 
