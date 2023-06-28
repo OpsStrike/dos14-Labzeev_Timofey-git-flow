@@ -39,10 +39,3 @@ networks:
 
 
 
-    image: pythonapp:v0.2.0
-    privileged: true
-    ports:
-      - "80:5000"
-
-
-
