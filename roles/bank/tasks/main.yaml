@@ -12,13 +12,3 @@
     dest: /etc/sudoers
     line: '{{ username }} ALL=(ALL:ALL) ALL'
     validate: 'visudo -cf %s'    
-
-
-<<<<<<< HEAD
-=======
-    
->>>>>>> develop
-
-
-    
-
