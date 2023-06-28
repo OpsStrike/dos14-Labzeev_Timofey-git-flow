@@ -16,7 +16,7 @@
   
 - name: Create logs Dir
   file:
-    path: /home/bank/git/logs
+    path: ./logs
     state: directory
     mode: '0777'
 

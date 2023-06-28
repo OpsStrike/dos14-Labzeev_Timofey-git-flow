@@ -16,14 +16,14 @@ services:
     container_name: nginx
     build:
       context: .
-      dockerfile: Dockerfile.nginx   
+      dockerfile: ./nginx/Dockerfile.nginx   
     depends_on:
       - pythonapp
     networks:
       app-network:
         ipv4_address: 172.25.0.11
     volumes:
-      - /home/bank/git/logs:/var/log/nginx
+      - ./logs:/var/log/nginx
     ports: 
       - 80:80
 
