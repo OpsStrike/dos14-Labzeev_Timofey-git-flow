@@ -53,6 +53,14 @@
     curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
     chmod +x /usr/local/bin/docker-compose
   changed_when: false
+  
+- name: Add user to Docker group
+  become: true
+  user:
+    name: "{{ username }}"
+    groups: docker
+    append: yes
+    
 
 - name: Add user to Docker group
   become: true
