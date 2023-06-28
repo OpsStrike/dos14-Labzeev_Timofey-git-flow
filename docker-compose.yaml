@@ -16,7 +16,7 @@ services:
     container_name: nginx
     build:
       context: .
-      dockerfile: ./nginx/Dockerfile.nginx   
+      dockerfile: Dockerfile.nginx   
     depends_on:
       - pythonapp
     networks:
