@@ -19,6 +19,12 @@
     path: ./logs
     state: directory
     mode: '0777'
+    
+- name: Create certs Dir
+  file:
+    path: ./certs
+    state: directory
+    mode: '0777'
 
 
     

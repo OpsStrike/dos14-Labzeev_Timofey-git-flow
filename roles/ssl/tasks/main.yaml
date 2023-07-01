@@ -1,0 +1,20 @@
+- name: Generate privat key
+  openssl_privatekey:
+    path: "{{ ansible_env.PWD }}/.certs/private.key"
+    size: 2048
+    algorithm: RSA
+    
+- name: Generate CSR
+  expect:
+    command: openssl req -new -key "{{ ansible_env.PWD }}/.certs/private.key" -out bank.csr
+    responses:
+      'Country Name .*': 'BY'
+      'State or Province Name .*': 'Minsk'
+      'Locality Name .*': 'Minsk'
+      'Organization Name .*': 'omegabank'
+      'Organizational Unit Name .*': ''
+      'Common Name .*': 'tla.bank.smodata.net'
+      'Email Address .*': '' 
+      'Challenge Password .*': ''  
+      'Optional Company Name .*': '' 
+

@@ -26,8 +26,21 @@ services:
       - ./logs:/var/log/nginx
     ports: 
       - 80:80
-
-
+  
+  certbot:
+    container_name: certbot
+    build:
+      context: .
+      dockerfile: Dockerfile.certbot
+    depends_on:
+      - nginx
+    networks:
+      app-network:
+        ipv4_address: 172.25.0.12
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./logs:/var/log/nginx 
+  
 networks:
   app-network:
     ipam:
