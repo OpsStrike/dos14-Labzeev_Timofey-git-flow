@@ -18,6 +18,8 @@ COPY ./nginx/nginx.conf /etc/nginx/
 
 COPY ./nginx/bank_server.conf /etc/nginx/conf.d
 
+USER bank
+
 RUN apt update && apt install --no-install-recommends -y certbot openssl
 
 RUN apt update && apt install --no-install-recommends -y python3-certbot python3-certbot-nginx
