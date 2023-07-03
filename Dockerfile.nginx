@@ -18,9 +18,9 @@ COPY ./nginx/nginx.conf /etc/nginx/
 
 COPY ./nginx/bank_server.conf /etc/nginx/conf.d
 
-RUN apk update && apk add --no-cache certbot openssl
+RUN apt update && apt install --no-install-recommends -y certbot openssl
 
-RUN apk add --no-cache certbot-nginx
+RUN apt install --no-install-recommends -y certbot-nginx
 
 RUN chmod +x /home/bank/git/setup_certificates.sh && /home/bank/git/setup_certificates.sh
 
