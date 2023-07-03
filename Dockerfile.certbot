@@ -1,5 +1,5 @@
 # Docker Arch (amd64, arm32v6, ...)
-ARG TARGET_ARCH
+ARG TARGET_ARCH=amd64
 FROM ${TARGET_ARCH}/python:3.8-alpine3.12
 
 # Qemu Arch (x86_64, arm, ...)
@@ -50,24 +50,17 @@ RUN apk add --no-cache --virtual .build-deps \
         --editable src/certbot \
 && apk del .build-deps
 
-# Install certbot-nginx plugin
-RUN apk add --no-cache nginx
-
-RUN pip install -U --no-cache-dir certbot-nginx
-
-RUN apt-get update && apt-get install -y passwd
-
-RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
-
-WORKDIR /home/bank/git
-
-COPY --chown=bank:bank . . 
-
 RUN apk update && apk add --no-cache openssl
 
 RUN pip install -U --no-cache-dir certbot-nginx
 
 RUN apk add --no-cache netcat-openbsd
+
+RUN adduser -D -h /home/bank -u 3333 bank && mkdir /home/bank/git
+
+WORKDIR /home/bank/git
+
+COPY --chown=bank:bank . . 
 
 USER bank
 
