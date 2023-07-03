@@ -2,18 +2,14 @@
   command: openssl genpkey -algorithm RSA -out "{{ ansible_env.PWD }}/certs/private.key"
 
     
-- name: Generate CSR
-  expect:
-    command: openssl req -new -key "{{ ansible_env.PWD }}/certs/private.key" -out bank.csr
-    responses:
-      'Country Name (2 letter code)': 'BY'
-      'State or Province Name (full name) [Some-State]': 'Minsk'
-      'Locality Name (eg, city) []': 'Minsk'
-      'Organization Name (eg, company) [Internet Widgits Pty Ltd]': 'omegabank'
-      'Organizational Unit Name (eg, section) []': '.'
-      'Common Name (e.g. server FQDN or YOUR name) []': 'tla.bank.smodata.net'
-      'Email Address []': '.' 
-      'A challenge password []': '.'  
-      'An optional company name []': '.' 
+
     
+- name: Generate an OpenSSL Certificate Signing Request with Subject information
+  community.crypto.openssl_csr:
+    path: ./certs/bank.csr
+    privatekey_path: ./certs/private.key
+    country_name: BY
+    organization_name: omegabank
+    email_address: timosha9911@gmail.com
+    common_name: tla.bank.smodata.net
 
