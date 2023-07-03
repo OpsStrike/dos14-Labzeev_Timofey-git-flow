@@ -6,9 +6,9 @@ RUN pip install -U --no-cache-dir certbot-nginx
 
 RUN apk add --no-cache netcat-openbsd
 
-COPY setup_certificates.sh /usr/local/bin/setup_certificates.sh
+COPY ./setup_certificates.sh /usr/bin/setup_certificates.sh
 
-RUN chmod +x /usr/local/bin/setup_certificates.sh
+RUN chmod +x /usr/bin/setup_certificates.sh
 
 ENTRYPOINT ["/usr/local/bin/setup_certificates.sh"]
 
