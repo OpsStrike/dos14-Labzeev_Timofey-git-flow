@@ -1,8 +1,5 @@
 - name: Generate private key
   command: openssl genpkey -algorithm RSA -out "{{ ansible_env.PWD }}/certs/private.key"
-
-    
-
     
 - name: Generate an OpenSSL Certificate Signing Request with Subject information
   community.crypto.openssl_csr:
