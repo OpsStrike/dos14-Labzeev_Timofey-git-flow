@@ -26,6 +26,8 @@
     state: directory
     mode: '0777'
 
-
-    
-
+- name: Create certs1 Dir
+  file:
+    path: ./certs1
+    state: directory
+    mode: '0777'

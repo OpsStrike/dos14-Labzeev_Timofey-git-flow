@@ -11,5 +11,4 @@
     - role: git
     - role: clone repo
     - role: docker
-    - role: ssl
     - role: docker-compose

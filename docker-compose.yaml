@@ -24,6 +24,8 @@ services:
         ipv4_address: 172.25.0.11
     volumes:
       - ./logs:/var/log/nginx
+      - ./certs:/etc/letsencrypt
+      - ./certs1:/var/www/html
     ports: 
       - 80:80
   
@@ -39,7 +41,8 @@ services:
         ipv4_address: 172.25.0.12
     volumes:
       - ./certs:/etc/letsencrypt
-      - ./logs:/var/log/nginx 
+      - ./logs:/var/log/nginx
+      - ./certs1:/var/www/html 
   
 networks:
   app-network:
