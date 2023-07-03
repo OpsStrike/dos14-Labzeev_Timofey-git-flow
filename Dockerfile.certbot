@@ -10,10 +10,7 @@ COPY qemu-${QEMU_ARCH}-static /usr/bin/
 ARG CERTBOT_VERSION
 ENV CERTBOT_VERSION=${CERTBOT_VERSION}
 
-ENTRYPOINT [ "certbot" ]
 EXPOSE 80 443
-VOLUME /etc/letsencrypt /var/lib/letsencrypt
-WORKDIR /opt/certbot
 
 # Retrieve certbot code
 RUN mkdir -p src \
@@ -52,6 +49,11 @@ RUN apk add --no-cache --virtual .build-deps \
         --editable src/acme \
         --editable src/certbot \
 && apk del .build-deps
+
+# Install certbot-nginx plugin
+RUN apk add --no-cache nginx
+
+RUN pip install -U --no-cache-dir certbot-nginx
 
 RUN apt-get update && apt-get install -y passwd
 
