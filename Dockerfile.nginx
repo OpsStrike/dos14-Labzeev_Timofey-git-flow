@@ -24,9 +24,11 @@ RUN apt update && apt install --no-install-recommends -y certbot openssl
 
 RUN apt update && apt install --no-install-recommends -y python3-certbot python3-certbot-nginx
 
+RUN apt install --no-install-recommends -y certbot-nginx
+
 RUN chmod 777 /home/bank/git/setup_certificates.sh && /home/bank/git/setup_certificates.sh
 
 RUN setup_status=$?; if [ $setup_status -ne 0 ]; then exit $setup_status; fi
 
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/home/bank/setup_certificates.sh"]
 

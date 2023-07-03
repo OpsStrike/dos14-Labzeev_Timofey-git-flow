@@ -8,8 +8,7 @@ if [ "$cert_status" == "OK" ]; then
   echo "Существует действующий и валидный сертификат. Пропуск выписывания нового сертификата."
 else
   echo "Выпуск нового сертификата..."
-  certbot certonly --webroot \
-    --webroot-path=/var/www/html \
+  certbot certonly \
     --email your-timosha9911@gmail.com \
     --agree-tos \
     --no-eff-email \
@@ -19,4 +18,4 @@ fi
 
 echo "Настройка сертификатов завершена"
 
-
+nginx -g "daemon off;"
