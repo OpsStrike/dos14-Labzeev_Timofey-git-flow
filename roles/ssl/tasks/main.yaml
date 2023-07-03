@@ -1,8 +1,6 @@
-- name: Generate privat key
-  openssl_privatekey:
-    path: "{{ ansible_env.PWD }}/.certs/private.key"
-    size: 2048
-    algorithm: RSA
+- name: Generate private key
+  command: openssl genpkey -algorithm RSA -out "{{ ansible_env.PWD }}/.certs/private.key"
+
     
 - name: Generate CSR
   expect:
