@@ -1,16 +1,8 @@
 # Docker Arch (amd64, arm32v6, ...)
-ARG TARGET_ARCH=amd64
-FROM ${TARGET_ARCH}/python:3.8-alpine3.12
-
-# Qemu Arch (x86_64, arm, ...)
-ARG QEMU_ARCH
-ENV QEMU_ARCH=${QEMU_ARCH}
-COPY qemu-${QEMU_ARCH}-static /usr/bin/
+FROM amd64/python:3.8-alpine3.12
 
 ARG CERTBOT_VERSION
 ENV CERTBOT_VERSION=${CERTBOT_VERSION}
-
-EXPOSE 80 443
 
 # Retrieve certbot code
 RUN mkdir -p src \
@@ -60,7 +52,7 @@ RUN adduser -D -h /home/bank -u 3333 bank && mkdir /home/bank/git
 
 WORKDIR /home/bank/git
 
-COPY --chown=bank:bank . . 
+COPY --chown=bank:bank . .
 
 USER bank
 
