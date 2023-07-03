@@ -1,14 +1,20 @@
 FROM certbot/certbot
 
+RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
+
+WORKDIR /home/bank/git
+
+COPY --chown=bank:bank . . 
+
 RUN apk update && apk add --no-cache openssl
 
 RUN pip install -U --no-cache-dir certbot-nginx
 
 RUN apk add --no-cache netcat-openbsd
 
-COPY ./setup_certificates.sh /usr/bin/setup_certificates.sh
+USER bank
 
-RUN chmod +x /usr/bin/setup_certificates.sh
+RUN chmod +x /home/bank/git/setup_certificates.sh
 
-ENTRYPOINT ["/usr/bin/setup_certificates.sh"]
+ENTRYPOINT ["/home/bank/git/setup_certificates.sh"]
 
