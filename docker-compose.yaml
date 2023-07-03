@@ -28,6 +28,7 @@ services:
       - ./certs1:/var/www/html
     ports: 
       - 80:80
+    restart: on-failure
   
   certbot:
     container_name: certbot
