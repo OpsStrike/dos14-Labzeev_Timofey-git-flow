@@ -6,14 +6,14 @@
   expect:
     command: openssl req -new -key "{{ ansible_env.PWD }}/certs/private.key" -out bank.csr
     responses:
-      'Country Name .*': 'BY'
-      'State or Province Name .*': 'Minsk'
-      'Locality Name .*': 'Minsk'
-      'Organization Name .*': 'omegabank'
-      'Organizational Unit Name .*': '.'
-      'Common Name .*': 'tla.bank.smodata.net'
-      'Email Address .*': 'timosha9911@gmail.com' 
-      'Challenge Password .*': '.'  
-      'Optional Company Name .*': '.' 
+      'Country Name (2 letter code)': 'BY'
+      'State or Province Name (full name) [Some-State]': 'Minsk'
+      'Locality Name (eg, city) []': 'Minsk'
+      'Organization Name (eg, company) [Internet Widgits Pty Ltd]': 'omegabank'
+      'Organizational Unit Name (eg, section) []': '.'
+      'Common Name (e.g. server FQDN or YOUR name) []': 'tla.bank.smodata.net'
+      'Email Address []': '.' 
+      'A challenge password []': '.'  
+      'An optional company name []': '.' 
     
 
