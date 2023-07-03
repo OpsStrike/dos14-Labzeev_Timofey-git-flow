@@ -9,6 +9,7 @@ if [ "$cert_status" == "OK" ]; then
 else
   echo "Выпуск нового сертификата..."
   certbot certonly \
+    --non-interactive \
     --email your-timosha9911@gmail.com \
     --agree-tos \
     --no-eff-email \
