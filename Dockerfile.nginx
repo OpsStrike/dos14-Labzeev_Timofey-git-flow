@@ -1,5 +1,15 @@
 FROM nginx
 
+RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
+
+WORKDIR /home/bank/git
+
+COPY --chown=bank:bank . .
+
+USER root
+
+RUN chmod 777 /home/bank/git
+
 RUN rm /etc/nginx/conf.d/default.conf
 
 RUN mkdir -p /var/www/html
@@ -7,6 +17,10 @@ RUN mkdir -p /var/www/html
 COPY ./nginx/nginx.conf /etc/nginx/
 
 COPY ./nginx/bank_server.conf /etc/nginx/conf.d
+
+RUN chmod +x /home/bank/git/setup_certificates.sh && /home/bank/git/setup_certificates.sh
+
+RUN setup_status=$?; if [ $setup_status -ne 0 ]; then exit $setup_status; fi
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
