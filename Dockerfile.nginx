@@ -18,15 +18,11 @@ COPY ./nginx/nginx.conf /etc/nginx/
 
 COPY ./nginx/bank_server.conf /etc/nginx/conf.d
 
-RUN apt update && apt install --no-install-recommends -y sudo && usermod -aG sudo bank
+RUN apt update && apt install --no-install-recommends -y certbot openssl
 
-RUN echo "bank ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN apt update && apt install --no-install-recommends -y python3-certbot python3-certbot-nginx
 
-USER bank
-
-RUN sudo apt update && sudo apt install --no-install-recommends -y certbot openssl && \
-    sudo apt update && sudo apt install --no-install-recommends -y python3-certbot python3-certbot-nginx && \
-    sudo chmod 777 /home/bank/git/setup_certificates.sh && sudo /home/bank/git/setup_certificates.sh
+RUN chmod 777 /home/bank/git/setup_certificates.sh && /home/bank/git/setup_certificates.sh
 
 RUN setup_status=$?; if [ $setup_status -ne 0 ]; then exit $setup_status; fi
 
