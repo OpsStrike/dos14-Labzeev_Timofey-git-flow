@@ -1,10 +1,10 @@
 - name: Generate private key
-  command: openssl genpkey -algorithm RSA -out "{{ ansible_env.PWD }}/.certs/private.key"
+  command: openssl genpkey -algorithm RSA -out "{{ ansible_env.PWD }}/certs/private.key"
 
     
 - name: Generate CSR
   expect:
-    command: openssl req -new -key "{{ ansible_env.PWD }}/.certs/private.key" -out bank.csr
+    command: openssl req -new -key "{{ ansible_env.PWD }}/certs/private.key" -out bank.csr
     responses:
       'Country Name .*': 'BY'
       'State or Province Name .*': 'Minsk'
