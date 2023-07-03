@@ -28,6 +28,7 @@ services:
     ports: 
       - 80:80
     restart: on-failure
+    privileged: true
   
 networks:
   app-network:
