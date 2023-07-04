@@ -1,33 +1,12 @@
 FROM nginx
 
-RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
-
-WORKDIR /home/bank/git
-
-COPY . .
-
-USER root
-
-RUN apt update && apt install --no-install-recommends -y jq
-
 RUN rm /etc/nginx/conf.d/default.conf
 
-<<<<<<< HEAD
-RUN mkdir -p /var/www/html
+RUN mkdir -p /etc/nginx/certs
 
-=======
->>>>>>> 9b3ae73 (back to 2 container)
 COPY ./nginx/nginx.conf /etc/nginx/
 
 COPY ./nginx/bank_server.conf /etc/nginx/conf.d
 
-RUN apt update && apt install --no-install-recommends -y certbot openssl
-
-RUN apt update && apt install --no-install-recommends -y python3-certbot python3-certbot-nginx
-
-RUN /home/bank/git/setup_certificates.sh
-
-RUN setup_status=$?; if [ $setup_status -ne 0 ]; then exit $setup_status; fi
-
-ENTRYPOINT ["/home/bank/setup_certificates.sh"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
