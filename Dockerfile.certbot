@@ -1,6 +1,7 @@
 FROM ubuntu:18.04
 
-RUN apt update && add-apt-repository ppa:certbot/certbot
+RUN apt-get update -y
+RUN add-apt-repository ppa:certbot/certbot
 RUN apt-get update -y
 RUN apt-get install -y certbot
 
