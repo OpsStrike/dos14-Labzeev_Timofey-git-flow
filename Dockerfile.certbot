@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+
+RUN add-apt-repository ppa:certbot/certbot
+RUN apt-get update -y
+RUN apt-get install -y certbot python-certbot-nginx
+
+RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
+
+WORKDIR /home/bank/git
+                    
+COPY --chown=bank:bank . . 
+
+USER bank
+
+RUN chmod +x /home/bank/git/setup_certificates.sh
+
+EXPOSE 80 443
+
+ENTRYPOINT ["/home/bank/git/setup_certificates.sh"]
