@@ -8,7 +8,7 @@ if [ "$cert_status" = "OK" ]; then
   echo "Существует действующий и валидный сертификат. Пропуск выписывания нового сертификата."
 else
   echo "Выпуск нового сертификата..."
-  .certbot/certbot-auto certonly --nginx \
+  ./certbot/certbot-auto certonly --nginx \
     --non-interactive \
     --email your-timosha9911@gmail.com \
     --agree-tos \
