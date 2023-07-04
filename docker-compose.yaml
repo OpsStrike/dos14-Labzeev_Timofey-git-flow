@@ -1,0 +1,54 @@
+version: "3.4"
+          
+services:
+  pythonapp:
+    container_name: bank-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    networks:
+      app-network:
+        ipv4_address: 172.25.0.10
+
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx   
+    depends_on:
+      - pythonapp
+    networks:
+      app-network:
+        ipv4_address: 172.25.0.11
+    volumes:
+      - ./logs:/var/log/nginx
+      - ./certs:/etc/letsencrypt
+    ports: 
+      - 80:80
+  
+  certbot:
+    container_name: certbot
+    build:
+      context: .
+      dockerfile: Dockerfile.certbot
+    depends_on:
+      - nginx
+    networks:
+      app-network:
+        ipv4_address: 172.25.0.12
+    volumes:
+      - ./certs:/etc/letsencrypt
+  
+networks:
+  app-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1
+
+
+
+
