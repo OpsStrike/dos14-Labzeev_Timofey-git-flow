@@ -8,7 +8,7 @@ WORKDIR /home/bank/git
                     
 COPY --chown=bank:bank . .
 
-RUN git clone https://github.com/certbot/certbot && chmod a+x ./certbot-auto
+RUN git clone https://github.com/certbot/certbot/tree/1.9.x && chmod a+x ./certbot-auto
  
 USER bank
 

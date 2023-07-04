@@ -17,8 +17,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.nginx   
-    depends_on:
-      - pythonapp
     networks:
       app-network:
         ipv4_address: 172.25.0.11
