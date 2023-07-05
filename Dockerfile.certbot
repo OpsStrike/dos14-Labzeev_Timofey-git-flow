@@ -1,10 +1,6 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y git
-
-RUN apt-get update && apt-get install -y snapd
-
-RUN snap install core && snap refresh core
 
 RUN snap install --classic certbot
 
