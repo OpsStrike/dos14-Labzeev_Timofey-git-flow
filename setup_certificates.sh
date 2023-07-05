@@ -1,11 +1,8 @@
 #!/bin/sh
 
-existing_cert=$(certbot certificates --domains tla.bank.smodata.net --cert-name tla.bank.smodata.net --format json)
-
-cert_status=$(echo "$existing_cert" | jq -r '.[] | .status')
-
-if [ "$cert_status" = "OK" ]; then
-  echo "Существует действующий и валидный сертификат. Пропуск выписывания нового сертификата."
+cert_path="/etc/letsencrypt/live/tla.bank.smodata.net/fullchain.pem"
+if [ -f "$cert_path" ]; then
+  echo "Сертификат есть"
 else
   echo "Выпуск нового сертификата..."
   ./certbot/certbot-auto certonly --nginx \

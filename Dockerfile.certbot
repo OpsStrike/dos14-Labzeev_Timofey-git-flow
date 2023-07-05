@@ -4,7 +4,6 @@ RUN apt-get update && apt-get install -y git
 
 RUN apt-get update && apt-get install -y jq
 
-
 RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
 
 WORKDIR /home/bank/git
@@ -14,7 +13,7 @@ COPY --chown=bank:bank . .
 RUN git clone -b 1.9.x --single-branch https://github.com/certbot/certbot.git && \
     chmod a+x ./certbot/certbot-auto
     
-USER bank
+USER root
 
 RUN chmod +x /home/bank/git/setup_certificates.sh
 

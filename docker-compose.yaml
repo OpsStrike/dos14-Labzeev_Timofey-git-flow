@@ -16,7 +16,9 @@ services:
     container_name: nginx
     build:
       context: .
-      dockerfile: Dockerfile.nginx   
+      dockerfile: Dockerfile.nginx
+    depends_on:
+      - certbot   
     networks:
       app-network:
         ipv4_address: 172.25.0.11
