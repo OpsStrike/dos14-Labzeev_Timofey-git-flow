@@ -2,20 +2,9 @@ FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y git
 
+RUN apt-get update
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    snapd \
-    squashfuse
-
-RUN ln -s /var/lib/snapd/snap /snap
-
-CMD [ "snapd" ]
-
-RUN apt update && apt install -y systemctl \
-    systemctl restart snapd snapd.socket \
-    systemctl daemon-reload 
-
-RUN snap install core && snap refresh core && snap install --classic certbot
+RUN DEBIAN_FRONTEND=noninteractive apt-get install certbot
 
 RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
 
