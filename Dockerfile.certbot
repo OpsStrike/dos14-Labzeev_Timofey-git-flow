@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y git
 
-RUN snap install --classic certbot
+RUN apt-get update && apt-get install -y certbot
 
 RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
 
