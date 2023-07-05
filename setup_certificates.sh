@@ -5,7 +5,7 @@ if [ -f "$cert_path" ]; then
   echo "Сертификат есть"
 else
   echo "Выпуск нового сертификата..."
-  ./certbot/certbot-auto certonly --nginx \
+  certbot certonly --nginx \
     --non-interactive \
     --email your-timosha9911@gmail.com \
     --agree-tos \

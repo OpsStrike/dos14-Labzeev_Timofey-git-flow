@@ -1,22 +1,26 @@
 FROM ubuntu:18.04
 
+USER root
+
 RUN apt-get update && apt-get install -y git
 
-RUN apt-get update && apt-get install -y jq
+RUN apt-get update && apt-get install -y snapd
+
+RUN snap install core && snap refresh core
+
+RUN snap install --classic certbot
 
 RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
 
 WORKDIR /home/bank/git
-                    
+
 COPY --chown=bank:bank . .
 
-RUN git clone -b 1.9.x --single-branch https://github.com/certbot/certbot.git && \
-    chmod a+x ./certbot/certbot-auto
-    
-USER root
-
 RUN chmod +x /home/bank/git/setup_certificates.sh
+
+RUN ln -s /snap/bin/certbot /usr/bin/certbot
 
 EXPOSE 80 443
 
 ENTRYPOINT ["/home/bank/git/setup_certificates.sh"]
+
