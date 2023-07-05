@@ -2,7 +2,16 @@ FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y git
 
-RUN apt-get update && apt-get install -y certbot
+
+RUN apt-get install -y \
+    snapd \
+    squashfuse
+
+RUN ln -s /var/lib/snapd/snap /snap
+
+CMD [ "snapd" ]
+
+RUN snap install core && snap refresh core && snap install --classic certbot
 
 RUN useradd -d /home/bank -U -m -u 3333 bank && mkdir /home/bank/git
 
