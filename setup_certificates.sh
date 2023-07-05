@@ -5,7 +5,8 @@ if [ -f "$cert_path" ]; then
   echo "Сертификат есть"
 else
   echo "Выпуск нового сертификата..."
-  certbot certonly --nginx \
+  certbot certonly --standalone --preferred-challenges http \
+    --http-01-port 8080 \
     --non-interactive \
     --email your-timosha9911@gmail.com \
     --agree-tos \
@@ -13,3 +14,4 @@ else
     -d tla.bank.smodata.net
 fi
 echo "Настройка сертификатов завершена"
+
