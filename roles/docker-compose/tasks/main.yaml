@@ -19,6 +19,12 @@
       command:
         cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d
         chdir: /home/bank/git
+        
+- name: chmod certs
+  become: true
+  file: 
+    path: ./certs
+    mode: "0777"
       
 
 
