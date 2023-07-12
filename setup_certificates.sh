@@ -1,16 +1,17 @@
 #!/bin/sh
 
-cert_path="/etc/letsencrypt/live/tla1.bank.smodata.net/fullchain.pem"
+cert_path="/etc/letsencrypt/live/tla.bank.smodata.net/fullchain.pem"
 if [ -f "$cert_path" ]; then
   echo "Сертификат есть"
 else
   echo "Выпуск нового сертификата..."
-  certbot certonly --webroot --webroot-path /var/www/certbot/ \
+  certbot certonly --standalone --preferred-challenges http \
+    --http-01-port 80 \
     --non-interactive \
     --email timosha9911@gmail.com \
     --agree-tos \
     --no-eff-email \
-    -d tla1.bank.smodata.net
+    -d tla.bank.smodata.net
 fi
 echo "Настройка сертификатов завершена"
 
