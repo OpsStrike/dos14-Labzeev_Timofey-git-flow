@@ -11,7 +11,7 @@ else
     --email timosha9911@gmail.com \
     --agree-tos \
     --no-eff-email \
-    -d tla.bank.smodata.net
+    -d tla1.bank.smodata.net
 fi
 echo "Настройка сертификатов завершена"
 
