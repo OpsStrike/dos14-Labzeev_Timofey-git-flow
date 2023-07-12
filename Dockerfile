@@ -1,6 +1,6 @@
 FROM python:3.11-buster
 
-RUN pip install poetry && useradd -d /home/bank -U -m -u 1111 bank && mkdir /home/bank/git
+RUN pip install poetry && useradd -d /home/bank -U -m -u bank && mkdir /home/bank/git
 
 WORKDIR /home/bank/git
 
