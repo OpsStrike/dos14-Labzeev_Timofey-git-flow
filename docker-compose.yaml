@@ -16,23 +16,20 @@ services:
     container_name: nginx
     build:
       context: .
-      dockerfile: Dockerfile.nginx
-    depends_on:
-      - certbot   
+      dockerfile: Dockerfile.nginx  
     networks:
       app-network:
         ipv4_address: 172.25.0.11
     volumes:
-      - ./logs:/var/log/nginx
-      - ./certs:/etc/letsencrypt
+      - ./logs:/var/log/nginx:ro
+      - ./certs:/etc/letsencrypt:ro
+      - ./cetbot/www:/var/certbot/:ro
     ports:
       - 80:80 
       - 443:443
   
   certbot:
     container_name: certbot
-    ports:
-      - 8080:8080
     build:
       context: .
       dockerfile: Dockerfile.certbot
@@ -40,7 +37,8 @@ services:
       app-network:
         ipv4_address: 172.25.0.12
     volumes:
-      - ./certs:/etc/letsencrypt
+      - ./certs:/etc/letsencrypt:rw
+      - ./certbot/www:/var/www/certbot/:rw
     
 networks:
   app-network:
