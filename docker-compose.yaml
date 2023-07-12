@@ -2,7 +2,7 @@ version: "3.4"
           
 services:
   pythonapp:
-    user: 1111
+    user: "1111"
     container_name: bank-service
     build:
       context: .
@@ -14,7 +14,7 @@ services:
         ipv4_address: 172.25.0.10
 
   nginx:
-    user: 1111
+    user: "1111"
     container_name: nginx
     build:
       context: .
@@ -32,7 +32,7 @@ services:
       - 443:443
   
   certbot:
-    user: 1111
+    user: "1111"
     container_name: certbot
     build:
       context: .
