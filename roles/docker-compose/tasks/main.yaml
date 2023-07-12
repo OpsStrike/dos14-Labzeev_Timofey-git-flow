@@ -19,16 +19,7 @@
       command:
         cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d
         chdir: /home/bank/git
-        
-- name: wait for create dir
-  pause:
-    seconds: 15
-            
-- name: chmod certs
-  become: true
-  file: 
-    path: home/{{ username }}/certs
-    mode: "0777"
+
       
 
 
