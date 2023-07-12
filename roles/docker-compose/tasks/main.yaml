@@ -23,7 +23,7 @@
 - name: chmod certs
   become: true
   file: 
-    path: ./certs
+    path: home/{{ username }}/certs
     mode: "0777"
       
 
