@@ -20,6 +20,6 @@ RUN echo "0 0 * * * /home/bank/git/setup_certificates.sh" > /etc/cron.d/check_ce
 
 EXPOSE 80 443
 
-CMD ["cron", "-f"]
+CMD ["/usr/sbin/cron", "-f"]
 
 
