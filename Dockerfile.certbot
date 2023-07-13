@@ -2,6 +2,8 @@ FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y cron
 
+ENV PATH="/usr/sbin:${PATH}"
+
 RUN apt-get update && apt-get install -y git
 
 RUN apt-get update
