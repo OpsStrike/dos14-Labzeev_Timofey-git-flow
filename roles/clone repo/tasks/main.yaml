@@ -10,7 +10,7 @@
   git:
     repo: https://github.com/OpsStrike/dos14-Labzeev_Timofey-git-flow.git
     dest: /home/{{ username }}/git
-    version: feature-hw-26
+    version: feature-hw-28
     force: yes
   changed_when: false
   
@@ -19,7 +19,9 @@
     path: ./logs
     state: directory
     mode: '0777'
-
-
     
-
+- name: Create certs Dir
+  file:
+    path: ./certs
+    state: directory
+    mode: '0777'

@@ -1,0 +1,21 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && apt-get install -y git
+
+RUN apt-get update
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y certbot python3-certbot-nginx
+
+RUN useradd -d /home/bank -U -m -u 1111 bank && mkdir /home/bank/git
+
+WORKDIR /home/bank/git
+
+COPY --chown=bank:bank . .
+
+RUN chmod +x /home/bank/git/setup_certificates.sh
+
+EXPOSE 80 443
+
+ENTRYPOINT ["/home/bank/git/setup_certificates.sh"]
+
+

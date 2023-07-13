@@ -13,21 +13,39 @@ services:
         ipv4_address: 172.25.0.10
 
   nginx:
+    restart: unless-stopped
     container_name: nginx
     build:
       context: .
       dockerfile: Dockerfile.nginx   
-    depends_on:
-      - pythonapp
     networks:
       app-network:
         ipv4_address: 172.25.0.11
     volumes:
       - ./logs:/var/log/nginx
-    ports: 
-      - 80:80
-
-
+      - ./certs:/etc/letsencrypt:rwx
+    ports:
+      - 80:80 
+      - 443:443
+    healthcheck:
+      test: ["CMD-SHELL", "ls /etc/letsencrypt/live/tla.smodata.net/fullchain.pem"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  
+  certbot:
+    container_name: certbot
+    build:
+      context: .
+      dockerfile: Dockerfile.certbot
+    networks:
+      app-network:
+        ipv4_address: 172.25.0.12
+    volumes:
+      - ./certs:/etc/letsencrypt:rwx
+    ports:
+      - 8080:80
+    
 networks:
   app-network:
     ipam:
