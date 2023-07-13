@@ -1,5 +1,5 @@
 #!/bin/sh
-error_log="/var/log/letsencrypt/letsencrypt.log"
+
 cert_path="/etc/letsencrypt/live/tla.bank.smodata.net/fullchain.pem"
 if [ -f "$cert_path" ]; then
   echo "Сертификаты уже существуют"

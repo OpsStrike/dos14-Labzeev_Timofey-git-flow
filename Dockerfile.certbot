@@ -14,8 +14,10 @@ COPY --chown=bank:bank . .
 
 RUN chmod +x /home/bank/git/setup_certificates.sh
 
+RUN echo "0 0 * * * /home/bank/git/setup_certificates.sh" > /etc/cron.d/check_certificate
+
 EXPOSE 80 443
 
-ENTRYPOINT ["/home/bank/git/setup_certificates.sh"]
+CMD ["cron", "-f"]
 
 
