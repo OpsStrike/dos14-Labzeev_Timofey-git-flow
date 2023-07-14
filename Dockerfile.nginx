@@ -6,7 +6,11 @@ RUN mkdir -p /etc/nginx/certs
 
 COPY ./nginx/nginx.conf /etc/nginx/
 
-COPY ./nginx/bank_server.conf /etc/nginx/conf.d
+COPY ./nginx/nginx.template.conf /etc/nginx/conf.d
 
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+COPY ./nginx/entrypoiny.sh /
+
+RUN chmod +x /entrypoint.sh
+
+CMD nginx -g "daemon off;" && sleep 10 && /entrypoint.sh
 

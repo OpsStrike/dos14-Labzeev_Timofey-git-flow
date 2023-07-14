@@ -27,6 +27,9 @@ services:
     ports:
       - 80:80 
       - 443:443
+    environment:
+      - SSL_CERTIFICATE_PATH=/etc/letsencrypt/live/tla.bank.smodata.net/fullchain.pem
+      - SSL_CERTIFICATE_KEY_PATH=/etc/letsencrypt/live/tla.bank.smodata.net/privkey.pem
     healthcheck:
       test: ["CMD-SHELL", "ls /etc/letsencrypt/live/tla.smodata.net/fullchain.pem"]
       interval: 30s
