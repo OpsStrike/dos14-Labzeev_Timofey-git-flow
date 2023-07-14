@@ -8,7 +8,7 @@ COPY ./nginx/nginx.conf /etc/nginx/
 
 COPY ./nginx/nginx.template.conf /etc/nginx/conf.d
 
-COPY ./nginx/entrypoiny.sh /
+COPY ./nginx/entrypoint.sh /
 
 RUN chmod +x /entrypoint.sh
 
