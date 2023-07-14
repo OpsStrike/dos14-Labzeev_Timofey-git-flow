@@ -9,26 +9,37 @@ services:
     ports:
       - 5000:5000
     networks:
-      app-network:
-        ipv4_address: 172.25.0.10
+      - app-network
+        
+        
+  nginx-cert:
+    container_name: nginx-cert
+    networks:
+      - app-network   
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx-cert
+    ports: 
+      - 80:80
+    depends_on:
+      - certbot
 
-  nginx:
-    container_name: nginx
+        
+  nginx-app:
+    container_name: nginx-app
     build:
       context: .
       dockerfile: Dockerfile.nginx   
     networks:
-      app-network:
-        ipv4_address: 172.25.0.11
+      - app-network                    
+    ports: 
+      - 443:443
     volumes:
       - ./logs:/var/log/nginx
       - ./certs:/etc/letsencrypt:rw
-    ports:
-      - 80:80 
-      - 443:443
-    environment:
-      - SSL_CERTIFICATE_PATH=/etc/letsencrypt/live/tla.bank.smodata.net/fullchain.pem
-      - SSL_CERTIFICATE_KEY_PATH=/etc/letsencrypt/live/tla.bank.smodata.net/privkey.pem
+    depends_on:
+      certbot:
+        condition: service_completed_successfully    
   
   certbot:
     container_name: certbot
@@ -37,13 +48,10 @@ services:
       dockerfile: Dockerfile.certbot
     networks:
       app-network:
-        ipv4_address: 172.25.0.12
+        ipv4_address: 172.25.0.10
     volumes:
       - ./certs:/etc/letsencrypt:rw
-    ports:
-      - 8080:80
-    depends_on:
-      - nginx
+    
     
 networks:
   app-network:

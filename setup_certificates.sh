@@ -16,7 +16,7 @@ if certbot certonly --standalone --preferred-challenges http \
   --no-eff-email \
   -d tla.bank.smodata.net; then
   echo "Сертификаты успешно созданы"
-  exit 10
+  exit 0
 else
   echo "Произошла ошибка при выпуске сертификатов"
   exit 1
