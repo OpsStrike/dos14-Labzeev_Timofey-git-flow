@@ -1,7 +1,5 @@
 FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install -y cron
-
 RUN apt-get update && apt-get install -y git
 
 RUN apt-get update
@@ -16,10 +14,8 @@ COPY --chown=bank:bank . .
 
 RUN chmod +x /home/bank/git/setup_certificates.sh
 
-RUN echo "*/30 * * * * /home/bank/git/setup_certificates.sh" > /etc/cron.d/check_certificate
-
 EXPOSE 80 443
 
-CMD ["/usr/sbin/cron", "-f"]
+ENTRYPOINT ["/home/bank/git/setup_certificates.sh"]
 
 
