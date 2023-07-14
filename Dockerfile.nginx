@@ -12,5 +12,5 @@ COPY ./nginx/entrypoiny.sh /
 
 RUN chmod +x /entrypoint.sh
 
-CMD nginx -g "daemon off;" && sleep 10 && /entrypoint.sh
+CMD ["/entrypoint.sh"]
 
