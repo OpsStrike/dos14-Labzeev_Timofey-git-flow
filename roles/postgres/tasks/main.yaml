@@ -12,7 +12,7 @@
 - name: Decrypt secrets.yml
   ansible.builtin.command: ansible-vault decrypt /home/{{ username }}/git/secrets.yml
   environment:
-    ANSIBLE_VAULT_PASSWORD_FILE: "{{ ANSIBLE_VAULT_PASSWORD }}"
+    ANSIBLE_VAULT_PASSWORD_FILE: "{{ ANSIBLE_VAULT_PASSWORD_FILE }}"
 
 - name: update cache
   apt:
