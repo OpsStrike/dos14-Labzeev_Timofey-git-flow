@@ -112,3 +112,7 @@ README.md
 ## Homework 26
 - ссылка на создание кредита или депозита curl -X PUT "localhost/api/v1/deposits?client_id=25&percent=15&sum=1000&term=2&periods=-1"
 - Если не работает nginx проверять default.conf /etc/nginx/conf.d/
+
+## Homework 29
+- Файл с паролем зашифрован ansible-vault, команда:  ansible-vault create secrets.yml/расшифровка ansible-vault decrypt secrets.yml
+- При запускке ansible указывать  --ask-vault-pass

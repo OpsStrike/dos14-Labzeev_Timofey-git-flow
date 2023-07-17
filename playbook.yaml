@@ -11,4 +11,5 @@
     - role: git
     - role: clone repo
     - role: docker
+    - role: postgres
     - role: docker-compose

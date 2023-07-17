@@ -51,6 +51,20 @@ services:
         ipv4_address: 172.25.0.10
     volumes:
       - ./certs:/etc/letsencrypt:rw
+      
+   
+  postgres:
+    container_name: postgres
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres   
+    volumes:
+      - ./pg_data1:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - 5432:5432
+   
     
     
 networks:
