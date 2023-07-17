@@ -5,8 +5,14 @@
     update_cache: yes
     state: present
 
+- name: Include .env file
+  ansible.builtin.include_vars:
+    file: .env
+
 - name: Decrypt secrets.yml
   ansible.builtin.command: ansible-vault decrypt /home/{{ username }}/git/secrets.yml
+  environment:
+    ANSIBLE_VAULT_PASSWORD: "{{ ANSIBLE_VAULT_PASSWORD }}"
 
 - name: update cache
   apt:
