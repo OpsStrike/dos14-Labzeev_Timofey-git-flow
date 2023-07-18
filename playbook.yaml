@@ -4,8 +4,14 @@
     - name: "username"
       prompt: "enter username"
       private: no
-  become: true
       
+    - name: "ansible_password"
+      prompt: "Enter vault password"
+      private: yes
+  become: true  
+  environment:
+    ANSIBLE_VAULT_PASSWORD: "{{ ansible_password }}"    
+    
   roles:
     - role: bank
     - role: git

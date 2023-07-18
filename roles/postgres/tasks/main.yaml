@@ -5,22 +5,28 @@
     update_cache: yes
     state: present
 
-- name: Include .env file
-  ansible.builtin.include_vars:
-    file: .env
-    name: vault_vars
-    
-
-- name: Decrypt secrets.yml
-  ansible.builtin.command: ansible-vault decrypt /home/{{ username }}/git/secrets.yml
-  environment:
-    ANSIBLE_VAULT_PASSWORD: "{{ vault_vars }}"
-
 - name: update cache
   apt:
     update_cache: yes
 
 - name: install PostgreSQL client
   apt:
-   name: postgresql-client
-   state: present
+    name: postgresql-client
+    state: present
+
+- name: create secrets_decrypted.yml   
+  file:
+    path: /home/{{ username }}/git/secrets_decrypted.yml
+    state: touch
+    
+- name: Decrypt secrets.yml 
+  ansible.builtin.expect:
+    command: ansible-vault decrypt /home/{{ username }}/git/secrets.yml --output /home/{{ username }}/git/secrets_decrypted.yml
+    responses:
+      Vault password: "{{ ansible_password }}"
+
+- name: Set permissions for secrets_decrypted.yml
+  file:
+    path: /home/{{ username }}/git/secrets_decrypted.yml
+    mode: '0644'
+    state: file
