@@ -54,12 +54,13 @@ services:
       
    
   postgres:
-    container_name: postgres
-    build:
-      context: .
-      dockerfile: Dockerfile.postgres   
+    image: postgres:15-bullseye
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /secrets_decypted.yml  
     volumes:
-      - ./pg_data1:/var/lib/postgresql/data
+      - ./secrets_decrypred.yml:/
+      - ./pg_data:/var/lib/postgresql/data
     networks:
       - app-network
     ports:
