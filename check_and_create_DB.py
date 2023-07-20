@@ -46,7 +46,8 @@ def check_and_create_database():
             error_message = f"{datetime.datetime.now()} - Error while creating database: {e}"
             with open("errors_DB.yml", "a") as error_file:
                 error_file.write(error_message + "\n")
-
+                
+    
     if database_created:
         try:
             connection = psycopg2.connect(
@@ -60,7 +61,7 @@ def check_and_create_database():
             cursor = connection.cursor()
 
             cursor.execute("""
-                CREATE TABLE Credits (
+                CREATE TABLE IF NOT EXISTS Credits (
                     credit_id INTEGER PRIMARY KEY,
                     client_id INTEGER,
                     percent NUMERIC,
@@ -72,7 +73,7 @@ def check_and_create_database():
             print("Table 'Credits' created successfully.")
 
             cursor.execute("""
-                CREATE TABLE Deposits (
+                CREATE TABLE IF NOT EXISTS Deposits (
                     deposit_id INTEGER PRIMARY KEY,
                     client_id INTEGER,
                     amount NUMERIC,
@@ -83,7 +84,10 @@ def check_and_create_database():
 
             cursor.close()
             connection.close()
-
+        except psycopg2.Error as e:
+            error_message = f"{datetime.datetime.now()} - Error while creating tables: {e}"
+            with open("errors_DB.yml", "a") as error_file:
+                error_file.write(error_message + "\n")
     if __name__ == "__main__":
         check_and_create_database()
 
