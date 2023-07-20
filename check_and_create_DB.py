@@ -2,7 +2,7 @@ import psycopg2
 import datetime
 
 with open("secrets_decrypted.yml", "r") as f:
-	password = f.read()
+    password = f.read()
 
 host = "localhost"
 port = 5432
@@ -22,11 +22,11 @@ def check_and_create_database():
 
         print(f"Connected to the database '{database}'.")
         connection.close()
-        
+
     except psycopg2.Error as i:
-        error_message = f"{datetime.datetime.now()} - Error: {e}"   
-    	with open("errors_DB.yml", "a") as error_file:
-        	error_file.write(error_message + "\n")
+        error_message = f"{datetime.datetime.now()} - Error: {e}"
+        with open("errors_DB.yml", "a") as error_file:
+            error_file.write(error_message + "\n")
         try:
             connection = psycopg2.connect(
                 host=host,
@@ -39,14 +39,14 @@ def check_and_create_database():
             print(f"Database '{database}' created successfully.")
             cursor.close()
             connection.close()
-            
+
             database_created = True
-            
+
         except psycopg2.Error as e:
             error_message = f"{datetime.datetime.now()} - Error while creating database: {e}"
             with open("errors_DB.yml", "a") as error_file:
                 error_file.write(error_message + "\n")
-                
+
     if database_created:
         try:
             connection = psycopg2.connect(
@@ -58,9 +58,9 @@ def check_and_create_database():
             )
             connection.autocommit = True
             cursor = connection.cursor()
-            
+
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS Credits (
+                CREATE TABLE Credits (
                     credit_id INTEGER PRIMARY KEY,
                     client_id INTEGER,
                     percent NUMERIC,
@@ -70,9 +70,9 @@ def check_and_create_database():
                 );
             """)
             print("Table 'Credits' created successfully.")
-            
+
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS Deposits (
+                CREATE TABLE Deposits (
                     deposit_id INTEGER PRIMARY KEY,
                     client_id INTEGER,
                     amount NUMERIC,
@@ -82,10 +82,8 @@ def check_and_create_database():
             print("Table 'Deposits' created successfully.")
 
             cursor.close()
-            connection.close()          
-    
-     	                  
-if __name__ == "__main__":
-    check_and_create_database()
-    
+            connection.close()
+
+    if __name__ == "__main__":
+        check_and_create_database()
 
