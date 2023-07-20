@@ -14,6 +14,12 @@
     name: postgresql-client
     state: present
 
+- name: Create pass folder
+  file:
+    path: home/bank/git/pass
+    state: directory
+    mode: '0755'
+
 - name: create secrets_decrypted.yml   
   file:
     path: /home/{{ username }}/git/pass/secrets_decrypted.yml
