@@ -1,8 +1,4 @@
 FROM postgres:15-bullseye
-
-RUN useradd -d /home/bank -U -m -u 1111 postgres && mkdir /home/postgres
-    
-USER postgres 
     
 COPY ./secrets_decrypted.yml /home/postgres
 
