@@ -27,6 +27,14 @@
     path: /home/{{ username }}/git/secrets_decrypted.yml
     mode: '0777'
     state: file
+
+- name: Установка libpq-dev
+  become: yes
+  apt:
+    name: libpq-dev
+    state: present
+    update_cache: yes
+    force: yes
     
 - name: Install psycopg2
   pip:
