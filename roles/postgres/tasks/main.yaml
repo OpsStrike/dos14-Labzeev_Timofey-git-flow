@@ -5,14 +5,11 @@
     update_cache: yes
     state: present
 
-- name: update cache
-  apt:
-    update_cache: yes
-
 - name: install PostgreSQL client
   apt:
     name: postgresql-client
     state: present
+    update_cache: yes
 
 - name: create secrets_decrypted.yml   
   file:
@@ -30,3 +27,9 @@
     path: /home/{{ username }}/git/secrets_decrypted.yml
     mode: '0777'
     state: file
+    
+- name: Install psycopg2
+  pip:
+    name: psycopg2
+    state: present
+
