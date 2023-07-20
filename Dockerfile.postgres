@@ -1,10 +1,18 @@
 FROM postgres:15-bullseye
-    
-COPY ./secrets_decrypted.yml /home/postgres
+
+ARG PG_UID=1002
+ARG PG_GID=1003
+
+RUN usermod -u ${PG_UID} postgres
+RUN groupmod -g ${PG_GID} postgres
+RUN chown -R postgres:postgres /var/lib/postgresql/data
+
+COPY ./secrets_decrypted.yml /etc
 
 ENV PGDATA=/var/lib/postgresql/data/pgdata
 
-ENV POSTGRES_PASSWORD_FILE=/secrets_decrypted.yml
+ENV POSTGRES_PASSWORD_FILE=/etc/secrets_decrypted.yml
 
 CMD ["postgres"]
+
 
