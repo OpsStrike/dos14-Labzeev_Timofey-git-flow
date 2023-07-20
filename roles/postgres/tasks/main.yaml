@@ -21,7 +21,7 @@
     
 - name: Decrypt secrets.yml 
   ansible.builtin.expect:
-    command: ansible-vault decrypt /home/{{ username }}/git/secrets.yml --output /home/{{ username }}/git/pass/secrets_decrypted.yml
+    command: ansible-vault decrypt /home/{{ username }}/git//pass/secrets.yml --output /home/{{ username }}/git/pass/secrets_decrypted.yml
     responses:
       Vault password: "{{ ansible_password }}"
 
