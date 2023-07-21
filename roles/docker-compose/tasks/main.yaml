@@ -19,7 +19,9 @@
     mode: a+x
         
 - name: Check and create DB and tables
-  command: python3 /home/{{ username }}/git/check_and_create_DB.py
+  command: python3 check_and_create_DB.py
+    args:
+      chdir: /home/{{ username }}/git/
 
       
 
