@@ -8,13 +8,15 @@ database = "omegabank"
 username = "postgres"
 
 def check_and_create_database():
+    database_created = False  
+
     try:
         with open("secrets_decrypted.yml", "r") as f:
             password1 = f.read().replace(" ", "").strip()
 
-        pdb.set_trace()  # Перед подключением к базе данных
+        pdb.set_trace()  
 
-        # Отключение автоматической транзакции при подключении
+        
         connection = psycopg2.connect(
             host=host,
             port=port,
@@ -43,13 +45,14 @@ def check_and_create_database():
             connection.autocommit = True
             cursor = connection.cursor()
 
-            
             cursor.execute(f"CREATE DATABASE {database};")
 
             pdb.set_trace()  # Дебаг
             print(f"База данных '{database}' успешно создана.")
             cursor.close()
             connection.close()
+
+            database_created = True
 
         except psycopg2.ProgrammingError as e:
             error_message = f"{datetime.datetime.now()} - Ошибка при создании базы данных: {e}"
