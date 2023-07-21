@@ -13,6 +13,14 @@
         cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d
         chdir: /home/bank/git
 
+- name: Permissions for execute script
+  file:
+    path: /home/{{ username }}/git/check_and_create_DB.py
+    mode: a+x
+        
+- name: Check and create DB and tables
+  command: python3 /home/{{ username }}/git/check_and_create_DB.py
+
       
 
 
