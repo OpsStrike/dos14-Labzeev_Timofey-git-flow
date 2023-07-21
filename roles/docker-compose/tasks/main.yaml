@@ -1,7 +1,6 @@
 - name: Install Docker Compose for ansible
   become: true
-  become_user: "{{ username }}"SELECT * FROM credits
-
+  become_user: "{{ username }}"
   pip:
     name: docker-compose
     state: present
