@@ -5,6 +5,20 @@
     name: docker-compose
     state: present
 
+- name: Check for changes in the repository
+  find:
+    paths: /home/{{ username }}/git
+    age: -1d 
+    recurse: yes
+  register: changed_files
+
+- name: Rebuild Docker images
+  command:
+    cmd: docker-compose -f /home/bank/git/docker-compose.yaml build
+  args:
+    chdir: /home/bank/git
+  when: changed_files.files | length > 0 
+
 - name: Run Docker Compose
   become: true
   block:
