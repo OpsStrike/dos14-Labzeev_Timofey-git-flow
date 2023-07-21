@@ -12,9 +12,7 @@ def check_and_create_database():
 
     try:
         with open("secrets_decrypted.yml", "r") as f:
-            password1 = f.read().replace(" ", "").strip()
-
-        pdb.set_trace()  
+            password1 = f.read().replace(" ", "").strip() 
 
         connection = psycopg2.connect(
             host=host,
@@ -34,8 +32,7 @@ def check_and_create_database():
         error_message = f"{datetime.datetime.now()} - Ошибка: {e}"
         with open("errors_DB.yml", "a") as error_file:
             error_file.write(error_message + "\n")
-
-        pdb.set_trace()  
+ 
         try:
             connection = psycopg2.connect(
                 host=host,
@@ -47,8 +44,7 @@ def check_and_create_database():
             cursor = connection.cursor()
 
             cursor.execute(f"CREATE DATABASE {database};")
-
-            pdb.set_trace()  
+  
             print(f"База данных '{database}' успешно создана.")
             cursor.close()
             connection.close()
@@ -77,10 +73,9 @@ def create_tables():
         connection.autocommit = True
         cursor = connection.cursor()
 
-        pdb.set_trace()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Credits (
-                credit_id PRIMARY KEY,
+                credit_id INT PRIMARY KEY,
                 client_id INTEGER,
                 percent NUMERIC,
                 sum NUMERIC,
@@ -90,10 +85,9 @@ def create_tables():
         """)
         print("Таблица 'Credits' успешно создана.")
 
-        pdb.set_trace()  
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Deposits (
-                deposit_id PRIMARY KEY,
+                deposit_id INT PRIMARY KEY,
                 client_id INTEGER,
                 amount NUMERIC,
                 duration INTEGER
