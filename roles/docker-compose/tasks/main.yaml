@@ -1,6 +1,7 @@
 - name: Install Docker Compose for ansible
   become: true
-  become_user: "{{ username }}"
+  become_user: "{{ username }}"SELECT * FROM credits
+
   pip:
     name: docker-compose
     state: present
@@ -23,7 +24,6 @@
     host: localhost
     port: 5432
     state: present
-
         
 - name: Check and create DB and tables
   command: python3 check_and_create_DB.py

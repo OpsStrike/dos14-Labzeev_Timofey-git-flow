@@ -75,8 +75,7 @@ def create_tables():
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Credits (
-                credit_id INT PRIMARY KEY,
-                client_id INTEGER,
+                client_id PRIMARY KEY,
                 percent NUMERIC,
                 sum NUMERIC,
                 term INTEGER,
@@ -87,10 +86,11 @@ def create_tables():
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Deposits (
-                deposit_id INT PRIMARY KEY,
-                client_id INTEGER,
-                amount NUMERIC,
-                duration INTEGER
+                client_id PRIMARY KEY,
+                percent NUMERIC,
+                sum NUMERIC,
+                term INTEGER,
+                periods INTEGER
             );
         """)
         print("Таблица 'Deposits' успешно создана.")
