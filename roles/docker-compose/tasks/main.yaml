@@ -20,7 +20,7 @@
 
 - name: Wait for PostgreSQL to start
   wait_for:
-    host: git-postgres
+    host: postgres
     port: 5432
     state: present
         
