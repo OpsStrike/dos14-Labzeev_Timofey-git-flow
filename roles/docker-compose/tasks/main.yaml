@@ -18,12 +18,9 @@
     path: /home/{{ username }}/git/check_and_create_DB.py
     mode: a+x
 
-- name: Wait for PostgreSQL to start
-  wait_for:
-    host: postgres
-    port: 5432
-    state: started
-    timeout: 10
+- name: Wait for 10 seconds
+  pause:
+    seconds: 10
         
 - name: Check and create DB and tables
   command: python3 check_and_create_DB.py
