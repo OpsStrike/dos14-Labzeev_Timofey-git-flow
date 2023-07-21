@@ -10,7 +10,7 @@
   block:
     - name: Execute Docker Compose
       command:
-        cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d
+        cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d postgres
         chdir: /home/bank/git
 
 - name: Permissions for execute script
