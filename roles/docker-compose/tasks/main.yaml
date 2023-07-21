@@ -22,7 +22,8 @@
   wait_for:
     host: postgres
     port: 5432
-    state: present
+    state: started
+    timeout: 10
         
 - name: Check and create DB and tables
   command: python3 check_and_create_DB.py
