@@ -65,6 +65,8 @@ def check_and_create_database():
 
 def create_tables():
     try:
+        with open("secrets_decrypted.yml", "r") as f:
+            password1 = f.read().replace(" ", "").strip()
         connection = psycopg2.connect(
             host=host,
             port=port,
@@ -75,7 +77,7 @@ def create_tables():
         connection.autocommit = True
         cursor = connection.cursor()
 
-        pdb.set_trace()  '
+        pdb.set_trace()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Credits (
                 credit_id PRIMARY KEY,
