@@ -26,8 +26,6 @@ def check_and_create_database():
         print(f"Подключено к базе данных '{database}'.")
         connection.close()
 
-        database_created = True  
-
     except psycopg2.OperationalError as e:
         error_message = f"{datetime.datetime.now()} - Ошибка: {e}"
         with open("errors_DB.yml", "a") as error_file:
@@ -56,8 +54,9 @@ def check_and_create_database():
             with open("errors_DB.yml", "a") as error_file:
                 error_file.write(error_message + "\n")
 
-    if database_created:  
+    if database_created or not database_created:  
         create_tables()
+
 
 def create_tables():
     try:
