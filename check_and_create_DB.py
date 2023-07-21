@@ -54,9 +54,8 @@ def check_and_create_database():
             with open("errors_DB.yml", "a") as error_file:
                 error_file.write(error_message + "\n")
 
-    if database_created or not database_created:  
+    if database_created or not database_created: 
         create_tables()
-
 
 def create_tables():
     try:
@@ -74,7 +73,7 @@ def create_tables():
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Credits (
-                client_id PRIMARY KEY,
+                client_id INTEGER PRIMARY KEY,
                 percent NUMERIC,
                 sum NUMERIC,
                 term INTEGER,
@@ -85,7 +84,7 @@ def create_tables():
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Deposits (
-                client_id PRIMARY KEY,
+                client_id INTEGER PRIMARY KEY,
                 percent NUMERIC,
                 sum NUMERIC,
                 term INTEGER,
