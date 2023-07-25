@@ -7,15 +7,7 @@ RUN usermod -u ${PG_UID} postgres
 RUN groupmod -g ${PG_GID} postgres
 RUN chown -R postgres:postgres /var/lib/postgresql/data
 
-RUN apt-get update && apt-get install -y ansible
-
-COPY secrets /etc/secrets
-
-RUN echo "$CRYPT_PASSWORD" > /tmp/vault_password
-
-RUN ansible-vault decrypt /etc/secrets --vault-password-file /tmp/vault_password --output /etc/secrets_decrypted.yml
-
-RUN chmod 777 /etc/secrets_decrypted.yml
+COPY ./secrets_decrypted.yml /etc
 
 ENV PGDATA=/var/lib/postgresql/data/pgdata
 
