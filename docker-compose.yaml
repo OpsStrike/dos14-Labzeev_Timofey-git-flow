@@ -10,8 +10,7 @@ services:
       - 5000:5000
     networks:
       - app-network
-        
-        
+                
   nginx-cert:
     container_name: nginx-cert
     networks:
@@ -23,7 +22,6 @@ services:
       - 80:80
     depends_on:
       - certbot
-
         
   nginx-app:
     container_name: nginx-app
@@ -51,8 +49,7 @@ services:
         ipv4_address: 172.25.0.10
     volumes:
       - ./certs:/etc/letsencrypt:rw
-      
-   
+         
   postgres:
     container_name: postgres
     build:
@@ -64,9 +61,7 @@ services:
       - app-network
     ports:
       - 5432:5432
-   
-    
-    
+       
 networks:
   app-network:
     ipam:
