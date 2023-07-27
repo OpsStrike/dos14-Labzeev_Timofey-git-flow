@@ -14,7 +14,8 @@
 
 - name: Rebuild Docker images
   command:
-    cmd: docker-compose -f /home/bank/git/docker-compose.yaml build
+    cmd: docker-compose -f /home/bank/git/docker-compose.yaml build --build-arg CRYPT_PASSWORD="{{ CRYPT_PASSWORD }}"
+  args:
   args:
     chdir: /home/bank/git
   when: changed_files.files | length > 0 
