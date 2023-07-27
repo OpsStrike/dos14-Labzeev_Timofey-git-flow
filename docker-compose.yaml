@@ -54,7 +54,9 @@ services:
     container_name: postgres
     build:
       context: .
-      dockerfile: Dockerfile.postgres   
+      dockerfile: Dockerfile.postgres
+      args:
+        CRYPT_PASSWORD: ${CRYPT_PASSWORD}   
     volumes:
       - ./pg_data1:/var/lib/postgresql/data
     networks:
