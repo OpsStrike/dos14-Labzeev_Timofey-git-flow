@@ -5,7 +5,7 @@ ARG CRYPT_PASSWORD
 RUN apt-get update && apt-get install -y ansible
 
 RUN touch /secrets_decrypted.yml && chmod 777 /secrets_decrypted.yml
-RUN touch /tmp/vault_password && chmmod 777 /tmp/vault_password
+RUN touch /tmp/vault_password && chmod 777 /tmp/vault_password
 
 RUN echo "$CRYPT_PASSWORD" > /tmp/vault_password
 RUN ansible-vault decrypt /secrets --output /secrets_decrypted.yml --vault-password-file=/tmp/vault_password
