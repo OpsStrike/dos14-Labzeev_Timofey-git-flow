@@ -11,22 +11,7 @@
     state: present
     update_cache: yes
 
-- name: create secrets_decrypted.yml   
-  file:
-    path: /home/{{ username }}/git/secrets_decrypted.yml
-    state: touch
-    
-- name: Decrypt secrets.yml 
-  ansible.builtin.expect:
-    command: ansible-vault decrypt /home/{{ username }}/git/secrets --output /home/{{ username }}/git/secrets_decrypted.yml
-    responses:
-      Vault password: "{{ crypt_password }}"
 
-- name: Set permissions for secrets_decrypted.yml
-  file:
-    path: /home/{{ username }}/git/secrets_decrypted.yml
-    mode: '0777'
-    state: file
 
 - name: install pip
   become: true

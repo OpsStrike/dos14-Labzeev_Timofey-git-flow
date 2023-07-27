@@ -5,12 +5,9 @@
       prompt: "enter username"
       private: no
       
-    - name: "crypt_password"
-      prompt: "Enter vault password"
-      private: yes
+
   become: true  
-  environment:
-    ANSIBLE_VAULT_PASSWORD: "{{ crypt_password }}"    
+    
     
   roles:
     - role: bank
