@@ -59,6 +59,7 @@ services:
         CRYPT_PASSWORD: ${CRYPT_PASSWORD}   
     volumes:
       - ./pg_data1:/var/lib/postgresql/data
+      - ./errors_pass:/tmp
     networks:
       - app-network
     ports:
