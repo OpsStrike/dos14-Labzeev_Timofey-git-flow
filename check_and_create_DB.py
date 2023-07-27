@@ -11,7 +11,7 @@ def check_and_create_database():
     database_created = False
 
     try:
-        with open("secrets_decrypted.yml", "r") as f:
+        with open("/etc/secrets_decrypted.yml", "r") as f:
             password1 = f.read().replace(" ", "").strip() 
 
         connection = psycopg2.connect(
@@ -28,7 +28,7 @@ def check_and_create_database():
 
     except psycopg2.OperationalError as e:
         error_message = f"{datetime.datetime.now()} - Ошибка: {e}"
-        with open("errors_DB.yml", "a") as error_file:
+        with open("/app/data/errors_DB.yml", "a") as error_file:
             error_file.write(error_message + "\n")
  
         try:
@@ -51,7 +51,7 @@ def check_and_create_database():
 
         except psycopg2.ProgrammingError as e:
             error_message = f"{datetime.datetime.now()} - Ошибка при создании базы данных: {e}"
-            with open("errors_DB.yml", "a") as error_file:
+            with open("/app/data/errors_DB.yml", "a") as error_file:
                 error_file.write(error_message + "\n")
 
     if database_created or not database_created: 
@@ -59,7 +59,7 @@ def check_and_create_database():
 
 def create_tables():
     try:
-        with open("secrets_decrypted.yml", "r") as f:
+        with open("/etc/secrets_decrypted.yml", "r") as f:
             password1 = f.read().replace(" ", "").strip()
         connection = psycopg2.connect(
             host=host,
@@ -98,7 +98,7 @@ def create_tables():
         connection.close()
     except psycopg2.ProgrammingError as e:
         error_message = f"{datetime.datetime.now()} - Ошибка при создании таблиц: {e}"
-        with open("errors_DB.yml", "a") as error_file:
+        with open("/app/data/errors_DB.yml", "a") as error_file:
             error_file.write(error_message + "\n")
 
 if __name__ == "__main__":

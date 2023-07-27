@@ -11,10 +11,15 @@ RUN echo "$CRYPT_PASSWORD" > /tmp/vault_password
 RUN cat /tmp/vault_password
 RUN ansible-vault decrypt /secrets --output /secrets_decrypted.yml --vault-password-file=/tmp/vault_password
 
+
 FROM postgres:15-bullseye
 
 ARG PG_UID=1002
 ARG PG_GID=1003
+
+RUN apt-get update && apt-get install -y python3.10 python3-pip
+RUN apt-get update && apt-get install -y libpq-dev
+RUN pip install psycopg2
 
 RUN usermod -u ${PG_UID} postgres
 RUN groupmod -g ${PG_GID} postgres
@@ -26,6 +31,8 @@ ENV PGDATA=/var/lib/postgresql/data/pgdata
 
 ENV POSTGRES_PASSWORD_FILE=/etc/secrets_decrypted.yml
 
-CMD ["postgres"]
+RUN mkdir -p /app/data
+COPY ./check_and_create_DB.py /app/check_and_create_DB.py && chmod a+x /app/check_and_create_DB.py
+RUN touch /app/data/errors_DB.yml && chmod a+rw /app/data/errors_DB.yml
 
-
+CMD ["bash", "-c", "postgres & sleep 20 && python /app/check_and_create_DB.py"]
