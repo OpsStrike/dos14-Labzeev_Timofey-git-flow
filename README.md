@@ -116,3 +116,5 @@ README.md
 ## Homework 29
 - Файл с паролем зашифрован ansible-vault, команда:  ansible-vault create secrets.yml/расшифровка ansible-vault decrypt secrets.yml
 - При запускке ansible указывать  --ask-vault-pass
+- Запуск плейбука ansible-playbook -i inventory.ini --ask-become-pass --extra-vars "CRYPT_PASSWORD=1qaz2wsx" playbook.yaml
+- Запуск локально: CRYPT_PASSWORD=ваш_пароль docker-compose -f /home/bank/git/docker-compose.yaml up -d
