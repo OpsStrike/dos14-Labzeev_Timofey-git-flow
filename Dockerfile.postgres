@@ -2,7 +2,6 @@ FROM python:3.9 AS decrypt
 
 COPY ./secrets /secrets
 ARG CRYPT_PASSWORD
-echo $CRYPT_PASSWORD
 RUN apt-get update && apt-get install -y ansible
 
 RUN touch /secrets_decrypted.yml && chmod 777 /secrets_decrypted.yml
