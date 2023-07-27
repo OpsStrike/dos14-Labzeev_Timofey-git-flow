@@ -56,7 +56,9 @@ services:
       context: .
       dockerfile: Dockerfile.postgres
       args:
-        CRYPT_PASSWORD: ${CRYPT_PASSWORD}   
+        CRYPT_PASSWORD: "${CRYPT_PASSWORD}"
+    environment:
+      CRYPT_PASSWORD: "${CRYPT_PASSWORD}"   
     volumes:
       - ./pg_data1:/var/lib/postgresql/data
       - ./errors:/app/data
