@@ -63,8 +63,7 @@ services:
       - app-network
     ports:
       - 5432:5432
-    args:
-      CRYPT_PASSWORD: ${CRYPT_PASSWORD}
+  
        
 networks:
   app-network:
