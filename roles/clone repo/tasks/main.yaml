@@ -12,8 +12,14 @@
     dest: /home/{{ username }}/git
     version: feature-hw-29
     force: yes
-  changed_when: false
-  
+  register: git_clone_result
+  changed_when: "'Changed' in git_clone_result.stdout"
+
+- name: Record the clone date and time
+  set_fact:
+    clone_updated: "{{ ansible_date_time.iso8601 }}"
+  when: git_clone_result.changed
+
 - name: Create logs Dir
   file:
     path: ./logs
