@@ -13,7 +13,7 @@
     version: feature-hw-29
     force: yes
   register: git_clone_result
-  changed_when: "git_clone_result.stdout"
+  changed_when: git_clone_result.changed
 
 - name: Record the clone date and time
   set_fact:
