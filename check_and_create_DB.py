@@ -2,7 +2,7 @@ import psycopg2
 import datetime
 import pdb
 
-host = "localhost"
+host = "postgres"
 port = 5432
 database = "omegabank"
 username = "postgres"
