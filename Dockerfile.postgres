@@ -22,6 +22,7 @@ RUN groupmod -g ${PG_GID} postgres
 RUN chown -R postgres:postgres /var/lib/postgresql/data
 
 RUN mkdir -p /app/data
+RUN chmod 777 /app
 
 COPY --from=decrypt --chown=postgres:postgres /secrets_decrypted.yml /app/secrets_decrypted.yml
 
