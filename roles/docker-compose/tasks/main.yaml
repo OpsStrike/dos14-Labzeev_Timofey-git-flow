@@ -19,13 +19,14 @@
   register: changed_files
 
 - name: Rebuild Docker images
-  command:
-    shell: |
-      docker-compose -f /home/bank/git/docker-compose.yaml down
-      docker rmi $(docker images -aq)
-      docker-compose -f /home/bank/git/docker-compose.yaml build --build-arg CRYPT_PASSWORD="{{ CRYPT_PASSWORD }}"
+  shell: |
+    docker-compose -f /home/bank/git/docker-compose.yaml down
+    docker rmi $(docker images -aq)
+    docker-compose -f /home/bank/git/docker-compose.yaml build --build-arg CRYPT_PASSWORD="{{ CRYPT_PASSWORD }}"
+  args:
     chdir: /home/bank/git
   when: changed_files.files | length > 0 
+
 
 
 - name: Run Docker Compose
