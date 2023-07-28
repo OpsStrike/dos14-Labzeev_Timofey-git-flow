@@ -11,7 +11,7 @@ def check_and_create_database():
     database_created = False
 
     try:
-        with open("/etc/secrets_decrypted.yml", "r") as f:
+        with open("/app/secrets_decrypted.yml", "r") as f:
             password1 = f.read().replace(" ", "").strip() 
 
         connection = psycopg2.connect(
@@ -59,7 +59,7 @@ def check_and_create_database():
 
 def create_tables():
     try:
-        with open("/etc/secrets_decrypted.yml", "r") as f:
+        with open("/app/secrets_decrypted.yml", "r") as f:
             password1 = f.read().replace(" ", "").strip()
         connection = psycopg2.connect(
             host=host,

@@ -61,13 +61,24 @@ services:
       CRYPT_PASSWORD: "${CRYPT_PASSWORD}"   
     volumes:
       - ./pg_data1:/var/lib/postgresql/data
-      - ./errors:/app/data
+      - shared_volume:/app
     networks:
       - app-network
     ports:
       - 5432:5432
   
-       
+  script:
+    container_name: db_script
+    build:
+      context: .
+      dockerfile: Dockerfile.script
+    networks:
+      - app-network  
+    volumes:
+      - ./errors:/app/data
+      - shared_volume:/app
+      
+              
 networks:
   app-network:
     ipam:
@@ -76,6 +87,5 @@ networks:
         - subnet: 172.25.0.0/16
           gateway: 172.25.0.1
 
-
-
-
+volumes:
+  shared_volume:
