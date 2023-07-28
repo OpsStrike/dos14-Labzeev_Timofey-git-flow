@@ -14,4 +14,4 @@ RUN chmod a+x /apps/check_and_create_DB.py \
     && touch /apps/data/errors_DB.yml \
     && chmod a+rw /apps/data/errors_DB.yml 
 
-CMD ["python", "/apps/check_and_create_DB.py"]
+CMD ["bash", "-c", "sleep 20 && python /apps/check_and_create_DB.py"]
