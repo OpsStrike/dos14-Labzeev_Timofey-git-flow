@@ -2,27 +2,30 @@ FROM python:3.9 AS decrypt
 
 COPY ./secrets /secrets
 ARG CRYPT_PASSWORD
-RUN apt-get update && apt-get install -y ansible
+RUN apt-get update \
+    && apt-get install -y ansible
 
-RUN touch /secrets_decrypted.yml && chmod 666 /secrets_decrypted.yml
-RUN touch /tmp/vault_password && chmod 666 /tmp/vault_password
+RUN touch /secrets_decrypted.yml \
+    && chmod 666 /secrets_decrypted.yml \
+    && touch /tmp/vault_password \
+    && chmod 666 /tmp/vault_password
 
-RUN echo "$CRYPT_PASSWORD" > /tmp/vault_password
-RUN cat /tmp/vault_password
-RUN ansible-vault decrypt /secrets --output /secrets_decrypted.yml --vault-password-file=/tmp/vault_password
 
+RUN echo "$CRYPT_PASSWORD" > /tmp/vault_password \
+    && cat /tmp/vault_password \
+    && ansible-vault decrypt /secrets --output /secrets_decrypted.yml --vault-password-file=/tmp/vault_password
 
 FROM postgres:15-bullseye
 
 ARG PG_UID=1002
 ARG PG_GID=1003
 
-RUN usermod -u ${PG_UID} postgres
-RUN groupmod -g ${PG_GID} postgres
-RUN chown -R postgres:postgres /var/lib/postgresql/data
+RUN usermod -u ${PG_UID} postgres \
+    && groupmod -g ${PG_GID} postgres \
+    && chown -R postgres:postgres /var/lib/postgresql/data
 
-RUN mkdir -p /app
-RUN chmod 777 /app
+RUN mkdir -p /app \
+    && chmod 777 /app
 
 COPY --from=decrypt /secrets_decrypted.yml /app/secrets_decrypted.yml
 RUN chown -R postgres:postgres /app/secrets_decrypted.yml
@@ -30,7 +33,5 @@ RUN chown -R postgres:postgres /app/secrets_decrypted.yml
 ENV PGDATA=/var/lib/postgresql/data/pgdata
 
 ENV POSTGRES_PASSWORD_FILE=/app/secrets_decrypted.yml
-
-
 
 CMD ["postgres"]
