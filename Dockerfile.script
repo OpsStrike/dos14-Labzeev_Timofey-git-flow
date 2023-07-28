@@ -9,7 +9,7 @@ RUN pip install psycopg2
 RUN mkdir -p /apps/data
 COPY ./check_and_create_DB.py /apps/check_and_create_DB.py
 
-RUN chmod a+x /app/check_and_create_DB.py
-RUN touch /app/data/errors_DB.yml && chmod a+rw /apps/data/errors_DB.yml
+RUN chmod a+x /apps/check_and_create_DB.py
+RUN touch /apps/data/errors_DB.yml && chmod a+rw /apps/data/errors_DB.yml
 
 CMD ["python", "/apps/check_and_create_DB.py"]
