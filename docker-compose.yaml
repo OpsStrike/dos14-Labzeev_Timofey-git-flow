@@ -75,7 +75,7 @@ services:
     networks:
       - app-network  
     volumes:
-      - ./errors:/app/data
+      - ./errors:/apps/data
       - shared_volume:/app
     depends_on:
       postgres:
