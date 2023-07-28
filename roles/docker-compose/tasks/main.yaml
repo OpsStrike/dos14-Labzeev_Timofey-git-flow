@@ -1,3 +1,9 @@
+- name: Установить pip
+  apt:
+    name: python3-pip  
+    state: present
+    update_cache: yes 
+
 - name: Install Docker Compose for ansible
   become: true
   become_user: "{{ username }}"
@@ -26,29 +32,3 @@
       command:
         cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d postgres
         chdir: /home/bank/git
-
-- name: Permissions for execute script
-  file:
-    path: /home/{{ username }}/git/check_and_create_DB.py
-    mode: a+x
-
-- name: Wait for 10 seconds
-  pause:
-    seconds: 10
-        
-- name: Check and create DB and tables
-  command: python3 check_and_create_DB.py
-  args:
-    chdir: /home/{{ username }}/git/
-
-      
-
-
-
-
-
-
-
-  
-
-
