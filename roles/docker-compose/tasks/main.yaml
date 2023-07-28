@@ -20,7 +20,7 @@
 
 - name: Rebuild Docker images
   command:
-    cmd: |
+    shell: |
       docker-compose -f /home/bank/git/docker-compose.yaml down
       docker rmi $(docker images -aq)
       docker-compose -f /home/bank/git/docker-compose.yaml build --build-arg CRYPT_PASSWORD="{{ CRYPT_PASSWORD }}"
