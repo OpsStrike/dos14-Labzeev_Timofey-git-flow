@@ -10,7 +10,9 @@ services:
       - 5000:5000
     networks:
       - app-network
-                
+    volumes:
+      - shared_volume:/app
+             
   nginx-cert:
     container_name: nginx-cert
     networks:

@@ -3,35 +3,64 @@ import json
 from flask import Flask, make_response, request, jsonify
 import yaml
 from account_clients import AccountClient
+from sqlalchemy import Column, Integer, Float
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+
+with open("/app/secrets_decrypted.yml", "r") as f:
+    password1 = f.read().replace(" ", "").strip()
+    
+engine = create_engine(
+    f"postgresql://postgres:{password1}@localhost:5432/omegabank",
+)
+Base = declarative_base()
+
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # Создаем Flask приложение
 app = Flask(__name__)
 
+class CommonCredit(Base):
+    __tablename__ = "Credits"
+
+    client_id = Column(Integer, primary_key=True)
+    percent = Column(Float)
+    sum = Column(Float)
+    term = Column(Integer)
+    periods = Column(Integer)
+    
+class CommonDeposit(Base):
+    __tablename__ = "Deposits"
+
+    client_id = Column(Integer, primary_key=True)
+    percent = Column(Float)
+    sum = Column(Float)
+    term = Column(Integer)
+    periods = Column(Integer)
 
 class BankProduct(abc.ABC):
     def __init__(self, client_id, percent, sum, term):
         self.client_id = client_id
-        self._percent = percent
-        self._sum = sum
-        self._term = term
+        self.percent = percent
+        self.sum = sum
+        self.term = term
 
-    @property
     def id(self):
         return self.client_id
-
-    @property
+ 
     def percent(self):
         return self._percent
-
-    @property
+    
     def sum(self):
         return self._sum
-
-    @property
+    
     def term(self):
         return self._term
-
-    @property
+    
     def end_sum(self):
         return self._sum * (1 + self._percent / 100) ** self._term
 
@@ -43,13 +72,12 @@ class BankProduct(abc.ABC):
 class Credit(BankProduct):
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
-        self._closed = False
+        self.closed = False
         if periods == -1:
-            self._periods = self.term * 12
+            self.periods = self.term * 12
         else:
-            self._periods = periods
+            self.periods = periods
 
-    @property
     def periods(self):
         return self._periods
 
@@ -57,11 +85,9 @@ class Credit(BankProduct):
     def periods(self, value):
         self._periods = value
 
-    @property
     def closed(self):
         return self._closed
 
-    @property
     def monthly_fee(self):
         return self.end_sum / (self.term * 12)
 
@@ -81,19 +107,19 @@ class Credit(BankProduct):
             client.transaction(substract=self.monthly_fee)
             bank.transaction(add=self.monthly_fee)
 
-        self._periods -= 1
-        if self._periods == 0:
-            self._closed = True
+        self.periods -= 1
+        if self.periods == 0:
+            self.closed = True
 
 
 class Deposit(BankProduct):
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
-        self._closed = False
+        self.closed = False
         if periods == -1:
-            self._periods = self.term * 12
+            self.periods = self.term * 12
         else:
-            self._periods = periods
+            self.periods = periods
 
         # При инициализации Deposit создаём объект AccountClient и меняем в нём withdraw на False
         client = AccountClient(self.client_id)
@@ -102,19 +128,17 @@ class Deposit(BankProduct):
         if self.sum > 0:
             client.transaction(self.sum)
 
-    @property
+    
     def periods(self):
         return self._periods
 
     @periods.setter
     def periods(self, value):
-        self._periods = value
-
-    @property
+        self.periods = value
+  
     def closed(self):
         return self._closed
 
-    @property
     def monthly_fee(self):
         return (self.end_sum - self.sum) / (self.term * 12)
 
@@ -134,9 +158,9 @@ class Deposit(BankProduct):
             client.transaction(add=self.monthly_fee)
             bank.transaction(substract=self.monthly_fee)
 
-            self._periods -= 1
-            if self._periods == 0:
-                self._closed = True
+            self.periods -= 1
+            if self.periods == 0:
+                self.closed = True
 
 
 #####################FLASK##########################################
@@ -242,7 +266,6 @@ def create_credit():
         201,
     )
 
-
 # Создаем новый депозит с проверкой существует ли он уже и записываем в файл
 @app.route("/api/v1/deposits", methods=["PUT"])
 def create_deposit():
@@ -288,11 +311,9 @@ def create_deposit():
         201,
     )
 
-
 #####################FLASK##########################################
 
 import threading
-
 
 def process_credits_and_deposits():
 
@@ -300,50 +321,65 @@ def process_credits_and_deposits():
 
     # Вызываем метод process каждый месяц = 10 сек
     while True:
-
-        with open("credits_deposits.yaml", "r") as f:
-            data1 = yaml.load(f, Loader=yaml.FullLoader)
-
+        
+        credits.clear()
+        deposits.clear()
+        
+        clients_info = session.query(CommonCredit, CommonDeposit).all()
+        if not clients_info:
+            with open("credits_deposits.yaml", "r") as f:
+                data1 = yaml.load(f, Loader=yaml.FullLoader)
+        for CD in data1:
+            if CD["type"] == "credit":
+                credit = Credit(
+                CD["client_id"],
+                CD["percent"],
+                CD["sum"],
+                CD["term"],
+                CD["periods"]
+            )
+                session.add(credit)
+                
+            elif CD["type"] == "deposit":
+                deposit = Deposit(
+                CD["client_id"],
+                CD["percent"],
+                CD["sum"],
+                CD["term"],
+                CD["periods"]
+            )
+                session.add(deposit)
+                        
+        try:
+            session.commit()
+        except IntegrityError as err:
+            session.rollback()
+        
+        
         # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-        credits = [
-            Credit(
-                entity["client_id"],
-                entity["percent"],
-                entity["sum"],
-                entity["term"],
-                entity["periods"],
-            )
-            for entity in data1.get("credit", [])
-        ]
-        deposits = [
-            Deposit(
-                entity["client_id"],
-                entity["percent"],
-                entity["sum"],
-                entity["term"],
-                entity["periods"],
-            )
-            for entity in data1.get("deposit", [])
-        ]
+        credits_inf = session.query(CommonCredit).all()
+        deposits_inf = session.query(CommonDeposit).all()
 
         # Обрабатываем кредиты и депозиты
-        for credit in credits:
+        for credit in credits_inf:
             credit.process()
-        for deposit in deposits:
+        for deposit in deposits_inf:
             deposit.process()
 
         # Удаляем закрытые кредиты и депозиты
-        credits = [credit for credit in credits if not credit.closed]
-        deposits = [deposit for deposit in deposits if not deposit.closed]
+        credits = [credit for credit in credits_inf if not credit.closed]
+        deposits = [deposit for deposit in deposits_inf if not deposit.closed]
 
         # Записываем новые данные
-        new_data = {
-            "credit": [credit.to_dict() for credit in credits],
-            "deposit": [deposit.to_dict() for deposit in deposits],
-        }
+        for credit in credits:
+            session.add(credit)
+        for deposit in deposits:
+            session.add(deposit)
 
-        with open("credits_deposits.yaml", "w") as f:
-            yaml.dump(new_data, f)
+        try:
+            session.commit()
+        except IntegrityError as err:
+            session.rollback()
 
         time.sleep(10)
 
