@@ -1,9 +1,13 @@
 FROM python:3.9 AS decrypt
 
-COPY ./secrets /secrets
 ARG CRYPT_PASSWORD
+
+RUN if [ -z "$CRYPT_PASSWORD" ]; then echo "ERROR: CRYPT_PASSWORD is not set"; exit 1; fi
+
 RUN apt-get update \
     && apt-get install -y ansible
+
+COPY ./secrets /secrets
 
 RUN touch /secrets_decrypted.yml \
     && chmod 666 /secrets_decrypted.yml \
