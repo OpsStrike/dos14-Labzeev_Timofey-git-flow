@@ -34,5 +34,5 @@
   block:
     - name: Execute Docker Compose
       command:
-        cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d postgres script pythonapp
+        cmd: docker-compose -f /home/bank/git/docker-compose.yaml up -d
         chdir: /home/bank/git
