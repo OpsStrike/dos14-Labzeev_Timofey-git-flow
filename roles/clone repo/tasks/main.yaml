@@ -10,7 +10,8 @@
   git:
     repo: https://github.com/OpsStrike/dos14-Labzeev_Timofey-git-flow.git
     dest: /home/{{ username }}/git
-    version: feature-hw-29
+    version: feature-hw-30
+    force: yes
   register: git_clone_result
   changed_when: git_clone_result.changed
 
