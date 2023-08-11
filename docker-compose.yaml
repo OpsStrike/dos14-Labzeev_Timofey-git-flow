@@ -12,6 +12,8 @@ services:
       - app-network
     volumes:
       - shared_volume:/app
+    depends_on:
+      - postgres
              
   nginx-cert:
     container_name: nginx-cert
