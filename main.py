@@ -125,7 +125,7 @@ class Deposit(BankProduct):
         client = AccountClient(self.client_id)
         client.withdraw = False
         # Добавляем логику для инициализации кредитов (первичное пополнение счёта клиента)
-        if self.sum > 0:
+        if int(self.sum) > 0:
             client.transaction(self.sum)
 
     
