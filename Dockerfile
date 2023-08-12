@@ -9,23 +9,16 @@ RUN pip install poetry && \
     
 RUN apt-get update\
     && apt-get install -y libpq-dev 
-
-RUN useradd -d /home/postgres -U -m -u ${PG_UID} postgres \
-    && usermod -u ${PG_UID} postgres \
-    && groupmod -g ${PG_GID} postgres \
-
-RUN mkdir -p /home/postgres
-    
-USER postgres   
-
-COPY /app/secrets_decrypted.yml /home/postgres/ \
-     && chmod 777 /home/postgres/secrets_decrypted.yml
     
 WORKDIR /home/bank/git
 
 COPY --chown=bank:bank . .
 
+COPY --from=decrypt /secrets_decrypted.yml /home/bank/secrets_decrypted.yml
+
 USER root
+
+RUN chown bank:bank /home/bank/secrets_decrypted.yml
 
 RUN chmod 777 /home/bank/git
 
