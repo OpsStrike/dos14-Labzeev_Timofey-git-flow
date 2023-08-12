@@ -13,6 +13,8 @@ RUN apt-get update\
 RUN useradd -d /home/postgres -U -m -u ${PG_UID} postgres \
     && usermod -u ${PG_UID} postgres \
     && groupmod -g ${PG_GID} postgres \
+
+RUN mkdir -p /home/postgres
     
 USER postgres   
 
