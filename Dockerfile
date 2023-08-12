@@ -9,10 +9,6 @@ RUN pip install poetry && \
     
 RUN apt-get update\
     && apt-get install -y libpq-dev 
-    
-WORKDIR /home/bank/git
-
-COPY --chown=bank:bank . .
 
 RUN useradd -d /home/postgres -U -m -u ${PG_UID} postgres \
     && usermod -u ${PG_UID} postgres \
@@ -22,6 +18,10 @@ USER postgres
 
 COPY /app/secrets_decrypted.yml /home/postgres/ \
      && chmod 777 /home/postgres/secrets_decrypted.yml
+    
+WORKDIR /home/bank/git
+
+COPY --chown=bank:bank . .
 
 USER root
 
