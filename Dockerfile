@@ -1,7 +1,7 @@
 FROM python:3.11-buster
 
 RUN pip install poetry && \
-    useradd -d /home/bank -U -m -u 1111 bank && \
+    useradd -d /home/bank -U -m -u 1002 bank && \
     mkdir /home/bank/git
     
 RUN apt-get update\

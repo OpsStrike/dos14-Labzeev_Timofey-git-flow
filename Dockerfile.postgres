@@ -27,7 +27,8 @@ RUN usermod -u ${PG_UID} postgres \
 RUN mkdir -p /app \
     && chmod 777 /app
 
-RUN usermod -a -G postgres bank
+RUN usermod -u ${PG_UID} bank \
+    && usermod -a -G postgres bank
 
 COPY --from=decrypt /secrets_decrypted.yml /app/secrets_decrypted.yml
 RUN chown -R postgres:postgres /app/secrets_decrypted.yml
