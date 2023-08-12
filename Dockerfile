@@ -1,7 +1,10 @@
 FROM python:3.11-buster
 
+ARG PG_GID=1003
+
 RUN pip install poetry && \
     useradd -d /home/bank -U -m -u 1111 bank && \
+    groupmod -g ${PG_GID} postgres && \
     mkdir /home/bank/git
     
 RUN apt-get update\
