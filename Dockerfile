@@ -20,7 +20,7 @@ RUN useradd -d /home/postgres -U -m -u ${PG_UID} postgres \
     
 USER postgres   
 
-COPY /app/secrets_decrypted.yml /home/postgres \
+COPY /app/secrets_decrypted.yml /home/postgres/ \
      && chmod 777 /home/postgres/secrets_decrypted.yml
 
 USER root
