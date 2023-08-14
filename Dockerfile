@@ -13,12 +13,10 @@ COPY --chown=bank:bank . .
 
 USER root
 
-RUN chmod 644 /app/secrets_decrypted.yml
-
 RUN chmod 777 /home/bank/git
 
 USER bank
 
 RUN poetry install
 
-CMD sh -c "while [ ! -f /app/secrets_decrypted.yml ]; do sleep 2; done && poetry run python main.py"
+CMD sh -c "while [ ! -f /home/bank/data/secrets_decrypted.yml ]; do sleep 2; done && poetry run python main.py"
