@@ -6,7 +6,7 @@ from account_clients import AccountClient
 from sqlalchemy import Column, Integer, Float
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
@@ -336,8 +336,7 @@ def process_credits_and_deposits():
     # Вызываем метод process каждый месяц = 10 сек
     while True:
         
-        credits.clear()
-        deposits.clear()
+        
         
         clients_info = session.query(CommonCredit, CommonDeposit).all()
         if not clients_info:
