@@ -14,7 +14,7 @@ with open("/app/secrets_decrypted.yml", "r") as f:
     password1 = f.read().replace(" ", "").strip()
     
 engine = create_engine(
-    f"postgresql://postgres:{password1}@localhost:5432/omegabank",
+    f"postgresql://postgres:{password1}@postgres:5432/omegabank",
 )
 Base = declarative_base()
 
@@ -81,7 +81,7 @@ class Credit(BankProduct):
     def periods(self):
         return self._periods
 
-    @periods.setter
+    
     def periods(self, value):
         self._periods = value
 
@@ -132,7 +132,7 @@ class Deposit(BankProduct):
     def periods(self):
         return self._periods
 
-    @periods.setter
+    
     def periods(self, value):
         self.periods = value
   
