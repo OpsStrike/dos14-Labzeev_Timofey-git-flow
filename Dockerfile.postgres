@@ -30,6 +30,8 @@ RUN mkdir -p /app \
 COPY --from=decrypt /secrets_decrypted.yml /app/secrets_decrypted.yml
 RUN chown -R postgres:postgres /app/secrets_decrypted.yml
 
+RUN chmod -R 777 /app/secrets_decrypted.yml
+
 ENV PGDATA=/var/lib/postgresql/data/pgdata
 
 ENV POSTGRES_PASSWORD_FILE=/app/secrets_decrypted.yml

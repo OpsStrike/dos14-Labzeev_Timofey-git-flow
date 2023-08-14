@@ -19,4 +19,4 @@ USER bank
 
 RUN poetry install
 
-CMD sh -c "while [ ! -f /home/bank/data/secrets_decrypted.yml ]; do sleep 2; done && poetry run python main.py"
+CMD sh -c "while [ ! -f /app/secrets_decrypted.yml ]; do sleep 5; done && poetry run python main.py"
