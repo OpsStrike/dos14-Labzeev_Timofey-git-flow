@@ -13,6 +13,8 @@ COPY --chown=bank:bank . .
 
 USER root
 
+RUN chmod 644 /app/secrets_decrypted.yml
+
 RUN chmod 777 /home/bank/git
 
 USER bank

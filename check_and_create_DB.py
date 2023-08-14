@@ -28,7 +28,7 @@ def check_and_create_database():
 
     except psycopg2.OperationalError as e:
         error_message = f"{datetime.datetime.now()} - Ошибка: {e}"
-        with open("/app/data/errors_DB.yml", "a") as error_file:
+        with open("/apps/data/errors_DB.yml", "a") as error_file:
             error_file.write(error_message + "\n")
  
         try:
@@ -51,7 +51,7 @@ def check_and_create_database():
 
         except psycopg2.ProgrammingError as e:
             error_message = f"{datetime.datetime.now()} - Ошибка при создании базы данных: {e}"
-            with open("/app/data/errors_DB.yml", "a") as error_file:
+            with open("/apps/data/errors_DB.yml", "a") as error_file:
                 error_file.write(error_message + "\n")
 
     if database_created or not database_created: 
@@ -98,7 +98,7 @@ def create_tables():
         connection.close()
     except psycopg2.ProgrammingError as e:
         error_message = f"{datetime.datetime.now()} - Ошибка при создании таблиц: {e}"
-        with open("/app/data/errors_DB.yml", "a") as error_file:
+        with open("/apps/data/errors_DB.yml", "a") as error_file:
             error_file.write(error_message + "\n")
 
 if __name__ == "__main__":
