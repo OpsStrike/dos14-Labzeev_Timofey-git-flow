@@ -25,7 +25,7 @@ session = Session()
 app = Flask(__name__)
 
 class CommonCredit(Base):
-    __tablename__ = "Credits"
+    __tablename__ = "credits"
 
     client_id = Column(Integer, primary_key=True)
     percent = Column(Float)
@@ -34,7 +34,7 @@ class CommonCredit(Base):
     periods = Column(Integer)
     
 class CommonDeposit(Base):
-    __tablename__ = "Deposits"
+    __tablename__ = "deposits"
 
     client_id = Column(Integer, primary_key=True)
     percent = Column(Float)
