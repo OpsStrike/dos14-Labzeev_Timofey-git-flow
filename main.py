@@ -148,7 +148,7 @@ class Deposit(BankProduct):
             if self.periods == 0:
                 self.closed = True
 
-class CommonCredit(Base, Credit):
+class CommonCredit(Base):
     __tablename__ = "credits"
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
@@ -175,7 +175,7 @@ class CommonCredit(Base, Credit):
             if self.periods == 0:
                 self.closed = True   
     
-class CommonDeposit(Base, Deposit):
+class CommonDeposit(Base):
     __tablename__ = "deposits"
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
