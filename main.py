@@ -343,31 +343,37 @@ def process_credits_and_deposits():
         
         
         
-        clients_info = session.query(CommonCredit, CommonDeposit).all()
-        if not clients_info:
+        credits_info = session.query(CommonCredit).all()
+        if not credits_info:
             with open("credits_deposits.yaml", "r") as f:
                 data1 = yaml.load(f, Loader=yaml.FullLoader)
-        for operation_type, items in data1.items():
-            for item in items:
-                if operation_type == "credit":
-                    credit = Credit(
-                        item["client_id"],
-                        item["percent"],
-                        item["sum"],
-                        item["term"],
-                        item["periods"]
-                    )
-                    session.add(credit)
-                    
-                elif operation_type == "deposit":
-                    deposit = Deposit(
-                        item["client_id"],
-                        item["percent"],
-                        item["sum"],
-                        item["term"],
-                        item["periods"]
-                    )
-                    session.add(deposit)
+            for operation_type, items in data1.items():
+                for item in items:
+                    if operation_type == "credit":
+                        credit = Credit(
+                            item["client_id"],
+                            item["percent"],
+                            item["sum"],
+                            item["term"],
+                            item["periods"]
+                        )
+                        session.add(credit)
+                        
+        deposits_info = session.query(CommonDeposit).all()
+        if not deposits_info:  
+            with open("credits_deposits.yaml", "r") as f:
+                data2 = yaml.load(f, Loader=yaml.FullLoader)              
+            for operation_type, items in data2.items():
+                for item in items:
+                    if operation_type == "deposit":
+                        deposit = Deposit(
+                            item["client_id"],
+                            item["percent"],
+                            item["sum"],
+                            item["term"],
+                            item["periods"]
+                        )
+                        session.add(deposit)
                         
         try:
             session.commit()
