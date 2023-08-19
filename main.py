@@ -24,23 +24,7 @@ session = Session()
 # Создаем Flask приложение
 app = Flask(__name__)
 
-class CommonCredit(Base):
-    __tablename__ = "credits"
 
-    client_id = Column(Integer, primary_key=True)
-    percent = Column(Float)
-    sum = Column(Float)
-    term = Column(Integer)
-    periods = Column(Integer)
-    
-class CommonDeposit(Base):
-    __tablename__ = "deposits"
-
-    client_id = Column(Integer, primary_key=True)
-    percent = Column(Float)
-    sum = Column(Float)
-    term = Column(Integer)
-    periods = Column(Integer)
 
 class BankProduct(Base):
     __abstract__ = True
@@ -167,7 +151,29 @@ class Deposit(BankProduct):
             if self.periods == 0:
                 self.closed = True
 
-
+class CommonCredit(Credit, Base):
+    __tablename__ = "credits"
+    def __init__(self, client_id, percent, sum, term, periods=-1):
+        super().__init__(client_id, percent, sum, term, periods)
+        
+    client_id = Column(Integer, primary_key=True)
+    percent = Column(Float)
+    sum = Column(Float)
+    term = Column(Integer)
+    periods = Column(Integer)
+    
+class CommonDeposit(Deposit, Base):
+    __tablename__ = "deposits"
+    def __init__(self, client_id, percent, sum, term, periods=-1):
+        super().__init__(client_id, percent, sum, term, periods)
+    
+    client_id = Column(Integer, primary_key=True)
+    percent = Column(Float)
+    sum = Column(Float)
+    term = Column(Integer)
+    periods = Column(Integer)
+    
+    
 #####################FLASK##########################################
 # Получаем кредит клиента по его Id
 @app.route("/api/v1/bank/health_check", methods=["GET"])
