@@ -63,16 +63,18 @@ class Credit(BankProduct):
         else:
             self.periods = periods
 
-    def periods(self):
+    def get_periods(self):
         return self._periods
 
     
-    def periods(self, value):
+    def set_periods(self, value):
         self._periods = value
-
-    def closed(self):
+    periods = property(get_periods, set_periods)
+    
+    def get_closed(self):
         return self._closed
-
+    closed = property(get_closed)
+    
     def monthly_fee(self):
         return self.end_sum / (self.term * 12)
 
