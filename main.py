@@ -85,17 +85,6 @@ class Credit(BankProduct):
             "periods": self.periods,
         }
 
-    def process(self):
-        if not self.closed:
-            client = AccountClient(self.client_id)
-            bank = AccountClient(0)
-            client.transaction(substract=self.monthly_fee)
-            bank.transaction(add=self.monthly_fee)
-
-        self.periods -= 1
-        if self.periods == 0:
-            self.closed = True
-
 
 class Deposit(BankProduct):
     __tablename__ = "deposits"
