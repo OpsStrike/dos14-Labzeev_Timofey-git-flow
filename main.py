@@ -148,7 +148,7 @@ class Deposit(BankProduct):
             if self.periods == 0:
                 self.closed = True
 
-class CommonCredit(BankProduct, Base):
+class CommonCredit(Base):
     __tablename__ = "credits"
 
     client_id = Column(Integer, primary_key=True)
@@ -158,7 +158,7 @@ class CommonCredit(BankProduct, Base):
     periods = Column(Integer)
         
     
-class CommonDeposit(BankProduct, Base):
+class CommonDeposit(Base):
     __tablename__ = "deposits"
 
     client_id = Column(Integer, primary_key=True)
