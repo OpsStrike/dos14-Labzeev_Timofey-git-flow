@@ -24,8 +24,7 @@ session = Session()
 # Создаем Flask приложение
 app = Flask(__name__)
 
-
-
+    
 class BankProduct(Base):
     __abstract__ = True
     
@@ -54,6 +53,45 @@ class BankProduct(Base):
     def process(self):
         pass
 
+class CommonCredit(BankProduct, Base):
+    __tablename__ = "credits"
+
+    client_id = Column(Integer, primary_key=True)
+    percent = Column(Float)
+    sum = Column(Float)
+    term = Column(Integer)
+    periods = Column(Integer)
+    
+    def process(self):
+        if not self.closed:
+            client = AccountClient(self.client_id)
+            bank = AccountClient(0)
+            client.transaction(substract=self.monthly_fee)
+            bank.transaction(add=self.monthly_fee)
+
+        self.periods -= 1
+        if self.periods == 0:
+            self.closed = True
+    
+class CommonDeposit(BankProduct, Base):
+    __tablename__ = "deposits"
+
+    client_id = Column(Integer, primary_key=True)
+    percent = Column(Float)
+    sum = Column(Float)
+    term = Column(Integer)
+    periods = Column(Integer)
+
+    def process(self):
+        if not self.closed:
+            client = AccountClient(self.client_id)
+            bank = AccountClient(0)
+            client.transaction(add=self.monthly_fee)
+            bank.transaction(substract=self.monthly_fee)
+
+        self.periods -= 1
+        if self.periods == 0:
+            self.closed = True
 
 class Credit(BankProduct):
     __tablename__ = "credits"
@@ -88,16 +126,7 @@ class Credit(BankProduct):
             "periods": self.periods,
         }
 
-    def process(self):
-        if not self.closed:
-            client = AccountClient(self.client_id)
-            bank = AccountClient(0)
-            client.transaction(substract=self.monthly_fee)
-            bank.transaction(add=self.monthly_fee)
 
-        self.periods -= 1
-        if self.periods == 0:
-            self.closed = True
 
 
 class Deposit(BankProduct):
@@ -140,32 +169,9 @@ class Deposit(BankProduct):
             "periods": self.periods,
         }
 
-    def process(self):
-        if not self.closed:
-            client = AccountClient(self.client_id)
-            bank = AccountClient(0)
-            client.transaction(add=self.monthly_fee)
-            bank.transaction(substract=self.monthly_fee)
 
-            self.periods -= 1
-            if self.periods == 0:
-                self.closed = True
 
-class CommonCredit(Credit, Base):
-    __tablename__ = "credits"
-    def __init__(self, client_id, percent, sum, term, periods=-1):
-        super().__init__(client_id, percent, sum, term, periods)
-        
-    
-    
-class CommonDeposit(Deposit, Base):
-    __tablename__ = "deposits"
-    def __init__(self, client_id, percent, sum, term, periods=-1):
-        super().__init__(client_id, percent, sum, term, periods)
-    
-    
-    
-    
+
 #####################FLASK##########################################
 # Получаем кредит клиента по его Id
 @app.route("/api/v1/bank/health_check", methods=["GET"])
