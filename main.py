@@ -156,22 +156,14 @@ class CommonCredit(Credit, Base):
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term, periods)
         
-    client_id = Column(Integer, primary_key=True)
-    percent = Column(Float)
-    sum = Column(Float)
-    term = Column(Integer)
-    periods = Column(Integer)
+    
     
 class CommonDeposit(Deposit, Base):
     __tablename__ = "deposits"
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term, periods)
     
-    client_id = Column(Integer, primary_key=True)
-    percent = Column(Float)
-    sum = Column(Float)
-    term = Column(Integer)
-    periods = Column(Integer)
+    
     
     
 #####################FLASK##########################################
