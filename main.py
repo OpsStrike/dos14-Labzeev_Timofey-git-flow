@@ -63,18 +63,16 @@ class Credit(BankProduct):
         else:
             self.periods = periods
 
-    def get_periods(self):
+    def periods(self):
         return self._periods
 
     
-    def set_periods(self, value):
+    def periods(self, value):
         self._periods = value
-    periods = property(get_periods, set_periods)
-    
-    def get_closed(self):
+
+    def closed(self):
         return self._closed
-    closed = property(get_closed)
-    
+
     def monthly_fee(self):
         return self.end_sum / (self.term * 12)
 
@@ -86,6 +84,17 @@ class Credit(BankProduct):
             "term": self.term,
             "periods": self.periods,
         }
+
+    def process(self):
+        if not self.closed:
+            client = AccountClient(self.client_id)
+            bank = AccountClient(0)
+            client.transaction(substract=self.monthly_fee)
+            bank.transaction(add=self.monthly_fee)
+
+        self.periods -= 1
+        if self.periods == 0:
+            self.closed = True
 
 
 class Deposit(BankProduct):
@@ -139,7 +148,7 @@ class Deposit(BankProduct):
             if self.periods == 0:
                 self.closed = True
 
-class CommonCredit(Credit, Base):
+class CommonCredit(BankProduct, Base):
     __tablename__ = "credits"
 
     client_id = Column(Integer, primary_key=True)
@@ -147,19 +156,9 @@ class CommonCredit(Credit, Base):
     sum = Column(Float)
     term = Column(Integer)
     periods = Column(Integer)
+        
     
-    def process(self):
-        if not self.closed:
-            client = AccountClient(self.client_id)
-            bank = AccountClient(0)
-            client.transaction(subtract=self.monthly_fee())
-            bank.transaction(add=self.monthly_fee())
-
-        self.periods -= 1
-        if self.periods == 0:
-            self.closed = True    
-    
-class CommonDeposit(Deposit, Base):
+class CommonDeposit(BankProduct, Base):
     __tablename__ = "deposits"
 
     client_id = Column(Integer, primary_key=True)
@@ -168,17 +167,7 @@ class CommonDeposit(Deposit, Base):
     term = Column(Integer)
     periods = Column(Integer)
     
-    def process(self):
-        if not self.closed:
-            client = AccountClient(self.client_id)
-            bank = AccountClient(0)
-            client.transaction(add=self.monthly_fee())
-            bank.transaction(subtract=self.monthly_fee())
-
-        self.periods -= 1
-        if self.periods == 0:
-            self.closed = True
-            
+    
 #####################FLASK##########################################
 # Получаем кредит клиента по его Id
 @app.route("/api/v1/bank/health_check", methods=["GET"])
