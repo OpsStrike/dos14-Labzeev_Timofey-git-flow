@@ -77,13 +77,13 @@ class Credit(BankProduct):
     def periods(self):
         return self._periods
 
-    @property.setter
+    @periods.setter
     def periods(self, value):
         self._periods = value
 
-    @property
+    @closed.setter
     def closed(self):
-        return self._closed
+        return self.closed
 
     @property
     def monthly_fee(self):
@@ -131,15 +131,15 @@ class Deposit(BankProduct):
 
     @property
     def periods(self):
-        return self._periods
+        return self.periods
 
     @periods.setter
     def periods(self, value):
         self.periods = value
     
-    @property
+    @closed.setter
     def closed(self):
-        return self._closed
+        return self.closed
 
     @property
     def monthly_fee(self):
