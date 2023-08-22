@@ -3,6 +3,7 @@ import json
 from flask import Flask, make_response, request, jsonify
 import yaml
 from account_clients import AccountClient
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, Float
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import create_engine
@@ -23,9 +24,17 @@ session = Session()
 
 # Создаем Flask приложение
 app = Flask(__name__)
+
+db = SQLAlchemy(app)
     
-class BankProduct(abc.ABC):
+class BankProduct(db.Base):
+    __abstract__ = True
     
+    client_id = db.mapped_column(db.Integer)
+    percent = db.mapped_column(db.NUMERIC)
+    sum = db.mapped_column(db.NUMERIC)
+    term = db.mapped_column(db.Integer)
+    periods = db.mapped_column(db.Integer)
     
     def __init__(self, client_id, percent, sum, term):
         self.client_id = client_id
@@ -53,7 +62,8 @@ class BankProduct(abc.ABC):
         pass
 
 class Credit(BankProduct):
-    
+    __tablename__ = "credits"
+    credit_id = db.mapped_column(db.Integer, primary_key=True)
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
@@ -98,6 +108,8 @@ class Credit(BankProduct):
 
 
 class Deposit(BankProduct):
+    __tablename__ = "deposits"
+    deposit_id = db.mapped_column(db.Integer, primary_key=True)
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
@@ -148,68 +160,7 @@ class Deposit(BankProduct):
             if self.periods == 0:
                 self.closed = True
 
-class CommonCredit(Base):
-    __tablename__ = "credits"
-    
-            
-    client_id = Column(Integer, primary_key=True)
-    percent = Column(Float)
-    sum = Column(Float)
-    term = Column(Integer)
-    periods = Column(Integer)
-    
-    def __init__(self, client_id, percent, sum, term, periods=-1):
-        super().__init__(client_id, percent, sum, term)
-        self.closed = False
-        if periods == -1:
-            self.periods = self.term * 12
-        else:
-            self.periods = periods 
-            
-    def closed(self):
-        return self._closed
-    
-    def process(self):
-        if not self.closed:
-            client = AccountClient(self.client_id)
-            bank = AccountClient(0)
-            client.transaction(add=self.monthly_fee)
-            bank.transaction(substract=self.monthly_fee)
 
-            self.periods -= 1
-            if self.periods == 0:
-                self.closed = True   
-    
-class CommonDeposit(Base):
-    __tablename__ = "deposits"
-    def __init__(self, client_id, percent, sum, term, periods=-1):
-        super().__init__(client_id, percent, sum, term)
-        self.closed = False
-        if periods == -1:
-            self.periods = self.term * 12
-        else:
-            self.periods = periods
-    def closed(self):
-        return self._closed        
-            
-    client_id = Column(Integer, primary_key=True)
-    percent = Column(Float)
-    sum = Column(Float)
-    term = Column(Integer)
-    periods = Column(Integer)
-    
-    def process(self):
-        if not self.closed:
-            client = AccountClient(self.client_id)
-            bank = AccountClient(0)
-            client.transaction(add=self.monthly_fee)
-            bank.transaction(substract=self.monthly_fee)
-
-            self.periods -= 1
-            if self.periods == 0:
-                self.closed = True 
-                
-Base.metadata.create_all(engine)    
 #####################FLASK##########################################
 # Получаем кредит клиента по его Id
 @app.route("/api/v1/bank/health_check", methods=["GET"])
@@ -218,7 +169,7 @@ def health_check():
 
 @app.route("/api/v1/credits/<int:client_id>", methods=["GET"])
 def get_credits(client_id):
-    credits_of_client = session.query(CommonCredit).filter(CommonCredit.client_id == client_id).first()
+    credits_of_client = db.session.query(Credit).filter(Credit.client_id == client_id).first()
 
     if not credits_of_client:
         error_message = f"У клиента {client_id} нет активных кредитов"
@@ -237,7 +188,7 @@ def get_credits(client_id):
 # Получаем депозит клиента по его id
 @app.route("/api/v1/deposits/<int:client_id>", methods=["GET"])
 def get_deposit(client_id):
-    deposit_of_client = session.query(CommonDeposit).filter(CommonDeposit.client_id == client_id).first()
+    deposit_of_client = db.session.query(Deposit).filter(Deposit.client_id == client_id).first()
 
     if not deposit_of_client:
         error_message = f"Клиент {client_id} не имеет активных депозитов"
@@ -255,7 +206,7 @@ def get_deposit(client_id):
 # Получаем все депозиты
 @app.route("/api/v1/deposits/all", methods=["GET"])
 def get_all_deposits():
-    deposits_all = session.query(CommonDeposit).all()
+    deposits_all = db.session.query(Deposit).all()
 
     deposits_list = []
     for deposit in deposits_all:
@@ -273,7 +224,7 @@ def get_all_deposits():
 # Получаем все кредиты
 @app.route("/api/v1/credits/all", methods=["GET"])
 def get_all_credits():
-    credits_all = session.query(CommonCredit).all()
+    credits_all = db.session.query(Credit).all()
 
     credits_list = []
     for credit in credits_all:
@@ -291,86 +242,64 @@ def get_all_credits():
 # Создаем новый кредит с проверкой на существование до этого и пишем в файл
 @app.route("/api/v1/credits", methods=["PUT"])
 def create_credit():
-    # Получаем данные из запроса в формате JSON
-    client_id = request.args.get('client_id')
-    percent = request.args.get('percent')
-    sum = request.args.get('sum')
-    term = request.args.get('term')
-    periods = request.args.get('periods')
-
-    # Проверяем, существует ли уже кредит для данного клиента в базе
-    existing_credit = session.query(CommonCredit).filter(CommonCredit.client_id == client_id).first()
-    if existing_credit:
-        return make_response(
-            jsonify(
-                {
-                    "status": "error",
-                    "message": f"Credit for client {client_id} already exists",
-                }
-            ),
-            400,
-        )
-
-    # Создаем новый кредит объекта CommonCredit и добавляем его в базу
-    new_credit = CommonCredit(
-        client_id=client_id,
-        percent=percent,
-        sum=sum,
-        term=term,
-        periods=periods
-    )
-    session.add(new_credit)
-    
     try:
-        session.commit()
-        return jsonify(
-            {"status": "success", "message": f"Credit added for client {client_id}"},
-        ), 201
+        data = request.get_json()
+
+        credit = Credit(**data)
+
+        existing_credit = db.session.query(Credit).filter_by(client_id=credit.client_id, closed=False).all()
+        if existing_credit:
+            return make_response(
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": f"Client {credit.client_id} already has an open credit",
+                    }
+                ),
+                400,
+            )
         
-    except IntegrityError as err:
-        session.rollback()
+        session.add(credit)
+        session.commit()
+        return (
+            jsonify({"status": "ok", "message": f"Credit added for client {credit.client_id}"}),
+            201,
+        )
+    except KeyError as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+    except ValueError as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
 
 # Создаем новый депозит с проверкой существует ли он уже и записываем в базу
 @app.route("/api/v1/deposits", methods=["PUT"])
 def create_deposit():
-    # Получаем данные из запроса в формате JSON
-    client_id = request.args.get('client_id')
-    percent = request.args.get('percent')
-    sum = request.args.get('sum')
-    term = request.args.get('term')
-    periods = request.args.get('periods')
-
-    # Проверяем, существует ли уже депозит для данного клиента в базе
-    existing_deposit = session.query(CommonDeposit).filter(CommonDeposit.client_id == client_id).first()
-    if existing_deposit:
-        return make_response(
-            jsonify(
-                {
-                    "status": "error",
-                    "message": f"Deposit for client {client_id} already exists",
-                }
-            ),
-            400,
-        )
-
-    # Создаем новый объект CommonDeposit и добавляем его в базу
-    new_deposit = CommonDeposit(
-        client_id=client_id,
-        percent=percent,
-        sum=sum,
-        term=term,
-        periods=periods
-    )
-    session.add(new_deposit)
-    
     try:
-        session.commit()
-        return jsonify(
-            {"status": "success", "message": f"Deposit for client {client_id} created"},
-        ), 201
-        
-    except IntegrityError as err:
-        session.rollback()
+        data = request.get_json()
+
+        deposit = Deposit(**data)
+
+        deposits = db.session.query(Deposit).filter_by(client_id=deposit.client_id,closed=False).all()
+        if deposits:
+            return make_response(
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": f"Client {deposit.client_id} already has an open deposit",
+                    }
+                ),
+                400,
+            )
+        db.session.add(deposit)
+        db.session.commit()
+        return (
+            jsonify({"status": "ok", "message": f"Deposit added for client {deposit.client_id}"}),
+            201,
+        )
+    except KeyError as e:
+        return jsonify({"status": "error", "message": f"Missing attribute {str(e)}"}), 400
+    except ValueError as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
 
 #####################FLASK##########################################
 
@@ -385,7 +314,7 @@ def process_credits_and_deposits():
         
         
         
-        credits_info = session.query(CommonCredit).all()
+        credits_info = db.session.query(Credit).all()
         if not credits_info:
             with open("credits_deposits.yaml", "r") as f:
                 data1 = yaml.load(f, Loader=yaml.FullLoader)
@@ -401,7 +330,7 @@ def process_credits_and_deposits():
                         )
                         session.add(credit)
                         
-        deposits_info = session.query(CommonDeposit).all()
+        deposits_info = db.session.query(Deposit).all()
         if not deposits_info:  
             with open("credits_deposits.yaml", "r") as f:
                 data2 = yaml.load(f, Loader=yaml.FullLoader)              
@@ -424,8 +353,8 @@ def process_credits_and_deposits():
         
         
         # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-        credits_inf = session.query(CommonCredit).all()
-        deposits_inf = session.query(CommonDeposit).all()
+        credits_inf = db.session.query(Credit).all()
+        deposits_inf = db.session.query(Deposit).all()
 
         # Обрабатываем кредиты и депозиты
         for credit in credits_inf:
