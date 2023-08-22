@@ -118,3 +118,12 @@ README.md
 - При запускке ansible указывать  --ask-vault-pass
 - Запуск плейбука ansible-playbook -i inventory.ini --ask-become-pass --extra-vars "CRYPT_PASSWORD=1qaz2wsx" playbook.yaml
 - Запуск локально: CRYPT_PASSWORD=ваш_пароль docker-compose -f /home/bank/git/docker-compose.yaml up -d
+
+## Homework 30
+- Создание кредита\депозита curl -X PUT -H "Content-Type: application/json" -d '{
+    "client_id": 123,
+    "percent": 5.0,
+    "sum": 10000.0,
+    "term": 12
+}' https://tla.bank.smodata.net/api/v1/credits
+
