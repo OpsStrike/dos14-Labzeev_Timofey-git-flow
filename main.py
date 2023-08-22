@@ -46,13 +46,25 @@ class BankProduct(db.Model):
     def percent(self):
         return self._percent
     
+    @percent.setter
+    def percent(self, value):
+        self._percent = value
+    
     @property
     def sum(self):
         return self._sum
     
+    @sum.setter
+    def sum(self, value):
+        self._sum = value
+    
     @property
     def term(self):
         return self._term
+    
+    @term.setter
+    def term(self, value):
+        self._term = value
     
     @property
     def end_sum(self):
