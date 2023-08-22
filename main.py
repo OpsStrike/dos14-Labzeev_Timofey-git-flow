@@ -247,7 +247,7 @@ def create_credit():
 
         credit = Credit(**data)
 
-        existing_credit = db.session.query(Credit).filter_by(client_id=credit.client_id, closed=False).all()
+        existing_credit = db.session.query(Credit).filter_by(client_id=credit.client_id).all()
         if existing_credit:
             return make_response(
                 jsonify(
@@ -279,7 +279,7 @@ def create_deposit():
 
         deposit = Deposit(**data)
 
-        deposits = db.session.query(Deposit).filter_by(client_id=deposit.client_id,closed=False).all()
+        deposits = db.session.query(Deposit).filter_by(client_id=deposit.client_id).all()
         if deposits:
             return make_response(
                 jsonify(
