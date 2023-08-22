@@ -22,7 +22,7 @@ app.config[
 db = SQLAlchemy(app)
 
 # Создаем Flask приложение    
-class BankProduct(db.Base):
+class BankProduct(db.Model):
     __abstract__ = True
     
     client_id = db.mapped_column(db.Integer)
@@ -58,7 +58,7 @@ class BankProduct(db.Base):
 
 class Credit(BankProduct):
     __tablename__ = "credits"
-    credit_id = db.mapped_column(db.Integer, primary_key=True)
+    client_id = db.mapped_column(db.Integer, primary_key=True)
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
@@ -104,7 +104,7 @@ class Credit(BankProduct):
 
 class Deposit(BankProduct):
     __tablename__ = "deposits"
-    deposit_id = db.mapped_column(db.Integer, primary_key=True)
+    client_id = db.mapped_column(db.Integer, primary_key=True)
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
