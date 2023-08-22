@@ -150,20 +150,25 @@ class Deposit(BankProduct):
 
 class CommonCredit(Base):
     __tablename__ = "credits"
-    def __init__(self, client_id, percent, sum, term, periods=-1):
-        super().__init__(client_id, percent, sum, term)
-        self.closed = False
-        if periods == -1:
-            self.periods = self.term * 12
-        else:
-            self.periods = periods
+    
             
     client_id = Column(Integer, primary_key=True)
     percent = Column(Float)
     sum = Column(Float)
     term = Column(Integer)
     periods = Column(Integer)
-     
+    
+    def __init__(self, client_id, percent, sum, term, periods=-1):
+        super().__init__(client_id, percent, sum, term)
+        self.closed = False
+        if periods == -1:
+            self.periods = self.term * 12
+        else:
+            self.periods = periods 
+            
+    def closed(self):
+        return self._closed
+    
     def process(self):
         if not self.closed:
             client = AccountClient(self.client_id)
@@ -184,7 +189,8 @@ class CommonDeposit(Base):
             self.periods = self.term * 12
         else:
             self.periods = periods
-            
+    def closed(self):
+        return self._closed        
             
     client_id = Column(Integer, primary_key=True)
     percent = Column(Float)
