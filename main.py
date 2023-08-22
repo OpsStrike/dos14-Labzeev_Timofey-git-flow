@@ -25,11 +25,12 @@ db = SQLAlchemy(app)
 class BankProduct(db.Model):
     __abstract__ = True
     
-    client_id = db.mapped_column(db.Integer)
+    client_id = db.mapped_column(db.Integer, primary_key=True)
     percent = db.mapped_column(db.NUMERIC)
     sum = db.mapped_column(db.NUMERIC)
     term = db.mapped_column(db.Integer)
     periods = db.mapped_column(db.Integer)
+    closed = db.Column(db.Boolean, default=False)
     
     def __init__(self, client_id, percent, sum, term):
         self.client_id = client_id
@@ -174,7 +175,7 @@ def health_check():
 
 @app.route("/api/v1/credits/<int:client_id>", methods=["GET"])
 def get_credits(client_id):
-    credits_of_client = db.session.query(Credit).filter(Credit.client_id == client_id).first()
+    credits_of_client = db.session.query(Credit).filter_by(Credit.client_id == client_id, closed=False).all()
 
     if not credits_of_client:
         error_message = f"У клиента {client_id} нет активных кредитов"
@@ -193,7 +194,7 @@ def get_credits(client_id):
 # Получаем депозит клиента по его id
 @app.route("/api/v1/deposits/<int:client_id>", methods=["GET"])
 def get_deposit(client_id):
-    deposit_of_client = db.session.query(Deposit).filter(Deposit.client_id == client_id).first()
+    deposit_of_client = db.session.query(Deposit).filter_by(Deposit.client_id == client_id, closed=False).all()
 
     if not deposit_of_client:
         error_message = f"Клиент {client_id} не имеет активных депозитов"
@@ -211,7 +212,7 @@ def get_deposit(client_id):
 # Получаем все депозиты
 @app.route("/api/v1/deposits/all", methods=["GET"])
 def get_all_deposits():
-    deposits_all = db.session.query(Deposit).all()
+    deposits_all = db.session.query(Deposit).filter_by(closed=False).all()
 
     deposits_list = []
     for deposit in deposits_all:
@@ -229,7 +230,7 @@ def get_all_deposits():
 # Получаем все кредиты
 @app.route("/api/v1/credits/all", methods=["GET"])
 def get_all_credits():
-    credits_all = db.session.query(Credit).all()
+    credits_all = db.session.query(Credit).filter_by(closed=False).all()
 
     credits_list = []
     for credit in credits_all:
@@ -252,7 +253,7 @@ def create_credit():
 
         credit = Credit(**data)
 
-        existing_credit = db.session.query(Credit).filter_by(client_id=credit.client_id).all()
+        existing_credit = db.session.query(Credit).filter_by(client_id=credit.client_id, closed=False).all()
         if existing_credit:
             return make_response(
                 jsonify(
@@ -284,7 +285,7 @@ def create_deposit():
 
         deposit = Deposit(**data)
 
-        deposits = db.session.query(Deposit).filter_by(client_id=deposit.client_id).all()
+        deposits = db.session.query(Deposit).filter_by(client_id=deposit.client_id, closed=False).all()
         if deposits:
             return make_response(
                 jsonify(
@@ -318,8 +319,8 @@ def process_credits_and_deposits():
     while True:
         with app.app_context():                       
             # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-            credits_inf = db.session.query(Credit).all()
-            deposits_inf = db.session.query(Deposit).all()
+            credits_inf = db.session.query(Credit).filter_by(closed=False).all()
+            deposits_inf = db.session.query(Deposit).filter_by(closed=False).all()
 
             # Обрабатываем кредиты и депозиты
             for credit in credits_inf:
@@ -327,15 +328,12 @@ def process_credits_and_deposits():
             for deposit in deposits_inf:
                 deposit.process()
 
-            # Удаляем закрытые кредиты и депозиты
-            credits = [credit for credit in credits_inf if not credit.closed]
-            deposits = [deposit for deposit in deposits_inf if not deposit.closed]
 
             # Записываем новые данные
-            for credit in credits:
-                db.session.add_all(credit)
-            for deposit in deposits:
-                db.session.add_all(deposit)
+            for credit1 in credit:
+                db.session.add_all(credit1)
+            for deposit1 in deposit:
+                db.session.add_all(deposit1)
 
             try:
                 db.session.commit()

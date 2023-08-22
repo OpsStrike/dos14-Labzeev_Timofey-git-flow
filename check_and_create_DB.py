@@ -77,7 +77,8 @@ def create_tables():
                 percent NUMERIC,
                 sum NUMERIC,
                 term INTEGER,
-                periods INTEGER
+                periods INTEGER.
+                closed Boolean
             );
         """)
         print("Таблица 'Credits' успешно создана.")
@@ -88,7 +89,8 @@ def create_tables():
                 percent NUMERIC,
                 sum NUMERIC,
                 term INTEGER,
-                periods INTEGER
+                periods INTEGER,
+                closed Boolean
             );
         """)
         print("Таблица 'Deposits' успешно создана.")
