@@ -329,11 +329,8 @@ def process_credits_and_deposits():
                 deposit.process()
 
 
-            # Записываем новые данные
-            for credit1 in credit:
-                db.session.add_all(credit1)
-            for deposit1 in deposit:
-                db.session.add_all(deposit1)
+            db.session.add_all(credits_inf)
+            db.session.add_all(deposits_inf)
 
             try:
                 db.session.commit()
