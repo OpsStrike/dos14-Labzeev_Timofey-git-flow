@@ -169,9 +169,6 @@ class CommonCredit(Base):
     def closed(self):
         return self._closed
     
-    def monthly_fee(self):
-        return self.end_sum / (self.term * 12)
-    
     def process(self):
         if not self.closed:
             client = AccountClient(self.client_id)
@@ -200,9 +197,6 @@ class CommonDeposit(Base):
     sum = Column(Float)
     term = Column(Integer)
     periods = Column(Integer)
-    
-    def monthly_fee(self):
-        return (self.end_sum - self.sum) / (self.term * 12)
     
     def process(self):
         if not self.closed:
