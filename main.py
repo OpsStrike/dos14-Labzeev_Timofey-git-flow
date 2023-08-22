@@ -67,7 +67,7 @@ class Credit(BankProduct):
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
-        self.closed = False
+        self._closed = False
         if periods == -1:
             self.periods = self.term * 12
         else:
@@ -81,9 +81,9 @@ class Credit(BankProduct):
     def periods(self, value):
         self._periods = value
 
-    @closed.setter
+    @property
     def closed(self):
-        return self.closed
+        return self._closed
 
     @property
     def monthly_fee(self):
@@ -116,7 +116,7 @@ class Deposit(BankProduct):
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
-        self.closed = False
+        self._closed = False
         if periods == -1:
             self.periods = self.term * 12
         else:
@@ -136,10 +136,10 @@ class Deposit(BankProduct):
     @periods.setter
     def periods(self, value):
         self.periods = value
-    
-    @closed.setter
+        
+    @property
     def closed(self):
-        return self.closed
+        return self._closed
 
     @property
     def monthly_fee(self):
