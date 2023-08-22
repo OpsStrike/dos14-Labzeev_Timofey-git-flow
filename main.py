@@ -1,32 +1,32 @@
 import abc
 import json
-from flask import Flask, make_response, request, jsonify
 import yaml
+from flask import Flask, make_response, request, jsonify
+from datetime import datetime, date
 from account_clients import AccountClient
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, Float
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
-
+from flask_sqlalchemy import SQLAlchemy
 
 with open("/app/secrets_decrypted.yml", "r") as f:
     password1 = f.read().replace(" ", "").strip()
+
+app = Flask(__name__)
     
-engine = create_engine(
-    f"postgresql://postgres:{password1}@postgres:5432/omegabank",
-)
+app.config[
+    "SQLALCHEMY_DATABASE_URI"
+] = f"postgresql://postgres:{password1}@postgres:5432/omegabank"
+db = SQLAlchemy(app)
+
 Base = declarative_base()
 
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=db.engine)
 session = Session()
 
-# Создаем Flask приложение
-app = Flask(__name__)
-
-db = SQLAlchemy(app)
-    
+# Создаем Flask приложение    
 class BankProduct(db.Base):
     __abstract__ = True
     
