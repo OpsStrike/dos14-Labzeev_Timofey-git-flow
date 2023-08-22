@@ -77,7 +77,7 @@ def create_tables():
                 percent NUMERIC,
                 sum NUMERIC,
                 term INTEGER,
-                periods INTEGER.
+                periods INTEGER,
                 closed Boolean
             );
         """)
