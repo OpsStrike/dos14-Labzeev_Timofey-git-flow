@@ -13,6 +13,7 @@ account = {git = "https://github.com/ggramal/dos14-gramovich-git-flow.git", rev 
 flask = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+Flask-SQLAlchemy = "^3.0"
 
 [tool.poetry.group.dev]
 optional = true
