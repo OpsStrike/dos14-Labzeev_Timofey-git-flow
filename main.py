@@ -82,9 +82,9 @@ class Credit(BankProduct):
         super().__init__(client_id, percent, sum, term)
         self._closed = False
         if periods == -1:
-            self.periods = self.term * 12
+            self._periods = self.term * 12
         else:
-            self.periods = periods
+            self._periods = periods
 
     @property
     def periods(self):
@@ -118,9 +118,9 @@ class Credit(BankProduct):
             client.transaction(substract=self.monthly_fee)
             bank.transaction(add=self.monthly_fee)
 
-        self.periods -= 1
-        if self.periods == 0:
-            self.closed = True
+        self._periods -= 1
+        if self._periods == 0:
+            self._closed = True
 
 
 class Deposit(BankProduct):
@@ -131,9 +131,9 @@ class Deposit(BankProduct):
         super().__init__(client_id, percent, sum, term)
         self._closed = False
         if periods == -1:
-            self.periods = self.term * 12
+            self._periods = self.term * 12
         else:
-            self.periods = periods
+            self._periods = periods
 
         # При инициализации Deposit создаём объект AccountClient и меняем в нём withdraw на False
         client = AccountClient(self.client_id)
@@ -144,11 +144,11 @@ class Deposit(BankProduct):
 
     @property
     def periods(self):
-        return self.periods
+        return self._periods
 
     @periods.setter
     def periods(self, value):
-        self.periods = value
+        self._periods = value
         
     @property
     def closed(self):
@@ -174,9 +174,9 @@ class Deposit(BankProduct):
             client.transaction(add=self.monthly_fee)
             bank.transaction(substract=self.monthly_fee)
 
-            self.periods -= 1
-            if self.periods == 0:
-                self.closed = True
+            self._periods -= 1
+            if self._periods == 0:
+                self._closed = True
 
 
 #####################FLASK##########################################
