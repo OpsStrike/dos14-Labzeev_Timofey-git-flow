@@ -37,18 +37,23 @@ class BankProduct(db.Model):
         self.sum = sum
         self.term = term
 
+    @property
     def id(self):
         return self.client_id
- 
+    
+    @property
     def percent(self):
         return self._percent
     
+    @property
     def sum(self):
         return self._sum
     
+    @property
     def term(self):
         return self._term
     
+    @property
     def end_sum(self):
         return self._sum * (1 + self._percent / 100) ** self._term
 
@@ -68,16 +73,19 @@ class Credit(BankProduct):
         else:
             self.periods = periods
 
+    @property
     def periods(self):
         return self._periods
 
-    
+    @property.setter
     def periods(self, value):
         self._periods = value
 
+    @property
     def closed(self):
         return self._closed
 
+    @property
     def monthly_fee(self):
         return self.end_sum / (self.term * 12)
 
@@ -121,17 +129,19 @@ class Deposit(BankProduct):
         if int(self.sum) > 0:
             client.transaction(self.sum)
 
-    
+    @property
     def periods(self):
         return self._periods
 
-    
+    @periods.setter
     def periods(self, value):
         self.periods = value
-  
+    
+    @property
     def closed(self):
         return self._closed
 
+    @property
     def monthly_fee(self):
         return (self.end_sum - self.sum) / (self.term * 12)
 
