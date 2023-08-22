@@ -21,11 +21,6 @@ app.config[
 ] = f"postgresql://postgres:{password1}@postgres:5432/omegabank"
 db = SQLAlchemy(app)
 
-Base = declarative_base()
-
-Session = sessionmaker(bind=db.engine)
-session = Session()
-
 # Создаем Flask приложение    
 class BankProduct(db.Base):
     __abstract__ = True
@@ -259,8 +254,8 @@ def create_credit():
                 400,
             )
         
-        session.add(credit)
-        session.commit()
+        db.session.add(credit)
+        db.session.commit()
         return (
             jsonify({"status": "ok", "message": f"Credit added for client {credit.client_id}"}),
             201,
@@ -311,74 +306,75 @@ def process_credits_and_deposits():
 
     # Вызываем метод process каждый месяц = 10 сек
     while True:
-        
-        
-        
-        credits_info = db.session.query(Credit).all()
-        if not credits_info:
-            with open("credits_deposits.yaml", "r") as f:
-                data1 = yaml.load(f, Loader=yaml.FullLoader)
-            for operation_type, items in data1.items():
-                for item in items:
-                    if operation_type == "credit":
-                        credit = Credit(
-                            item["client_id"],
-                            item["percent"],
-                            item["sum"],
-                            item["term"],
-                            item["periods"]
-                        )
-                        session.add(credit)
-                        
-        deposits_info = db.session.query(Deposit).all()
-        if not deposits_info:  
-            with open("credits_deposits.yaml", "r") as f:
-                data2 = yaml.load(f, Loader=yaml.FullLoader)              
-            for operation_type, items in data2.items():
-                for item in items:
-                    if operation_type == "deposit":
-                        deposit = Deposit(
-                            item["client_id"],
-                            item["percent"],
-                            item["sum"],
-                            item["term"],
-                            item["periods"]
-                        )
-                        session.add(deposit)
-                        
-        try:
-            session.commit()
-        except IntegrityError as err:
-            session.rollback()
-        
-        
-        # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-        credits_inf = db.session.query(Credit).all()
-        deposits_inf = db.session.query(Deposit).all()
+        with app.app_context():                       
+            # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
+            credits_inf = db.session.query(Credit).all()
+            deposits_inf = db.session.query(Deposit).all()
 
-        # Обрабатываем кредиты и депозиты
-        for credit in credits_inf:
-            credit.process()
-        for deposit in deposits_inf:
-            deposit.process()
+            # Обрабатываем кредиты и депозиты
+            for credit in credits_inf:
+                credit.process()
+            for deposit in deposits_inf:
+                deposit.process()
 
-        # Удаляем закрытые кредиты и депозиты
-        credits = [credit for credit in credits_inf if not credit.closed]
-        deposits = [deposit for deposit in deposits_inf if not deposit.closed]
+            # Удаляем закрытые кредиты и депозиты
+            credits = [credit for credit in credits_inf if not credit.closed]
+            deposits = [deposit for deposit in deposits_inf if not deposit.closed]
 
-        # Записываем новые данные
-        for credit in credits:
-            session.add(credit)
-        for deposit in deposits:
-            session.add(deposit)
+            # Записываем новые данные
+            for credit in credits:
+                db.session.add_all(credit)
+            for deposit in deposits:
+                db.session.add_all(deposit)
 
-        try:
-            session.commit()
-        except IntegrityError as err:
-            session.rollback()
+            try:
+                db.session.commit()
+            except IntegrityError as err:
+                db.session.rollback()
 
         time.sleep(10)
-
+        
+        
+def read_data():
+    credits_info = db.session.query(Credit).all()
+    if not credits_info:
+        with open("credits_deposits.yaml", "r") as f:
+            data1 = yaml.load(f, Loader=yaml.FullLoader)
+        for operation_type, items in data1.items():
+            for item in items:
+                if operation_type == "credit":
+                    credit = Credit(
+                        item["client_id"],
+                        item["percent"],
+                        item["sum"],
+                        item["term"],
+                        item["periods"]
+                    )
+                    db.session.add(credit)
+                        
+    deposits_info = db.session.query(Deposit).all()
+    if not deposits_info:  
+        with open("credits_deposits.yaml", "r") as f:
+            data2 = yaml.load(f, Loader=yaml.FullLoader)              
+        for operation_type, items in data2.items():
+            for item in items:
+                if operation_type == "deposit":
+                    deposit = Deposit(
+                        item["client_id"],
+                        item["percent"],
+                        item["sum"],
+                        item["term"],
+                        item["periods"]
+                    )
+                    db.session.add(deposit)
+    try:
+        db.session.commit()
+    except IntegrityError as err:
+        db.session.rollback()
+        
+with app.app_context():
+    db.create_all()
+    read_data()
 
 credit_deposit_thread = threading.Thread(target=process_credits_and_deposits)
 credit_deposit_thread.start()
