@@ -366,10 +366,10 @@ def read_data():
                         item["periods"]
                     )
                     db.session.add(credit)
-    try:
-        db.session.commit()
-    except IntegrityError as err:
-        db.session.rollback()
+                try:
+                    db.session.commit()
+                except IntegrityError as err:
+                    db.session.rollback()
                         
     deposits_info = db.session.query(Deposit).all()
     if not deposits_info:  
