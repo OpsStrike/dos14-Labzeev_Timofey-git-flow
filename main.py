@@ -335,8 +335,8 @@ def process_credits_and_deposits():
     while True:
         with app.app_context():                       
             # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-            credits_inf = db.session.query(Credit).filter(closed=False).all()
-            deposits_inf = db.session.query(Deposit).filter(closed=False).all()
+            credits_inf = db.session.query(Credit).filter(Credit.closed == False).all()
+            deposits_inf = db.session.query(Deposit).filter(Deposit.closed == False).all()
 
             # Обрабатываем кредиты и депозиты
             for credit in credits_inf:
