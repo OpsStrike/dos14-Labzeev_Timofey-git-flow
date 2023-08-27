@@ -76,9 +76,6 @@ class BankProduct(db.Model):
 
 class Credit(BankProduct):
     __tablename__ = "credits"
-    client_id = db.mapped_column(db.Integer, primary_key=True)
-    _periods = db.mapped_column(db.Integer, name="periods") 
-    _closed = db.Column(db.Boolean, default=False, name="closed")
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
@@ -127,9 +124,6 @@ class Credit(BankProduct):
 
 class Deposit(BankProduct):
     __tablename__ = "deposits"
-    client_id = db.mapped_column(db.Integer, primary_key=True)
-    _periods = db.mapped_column(db.Integer, name="periods") 
-    _closed = db.Column(db.Boolean, default=False, name="closed")
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
