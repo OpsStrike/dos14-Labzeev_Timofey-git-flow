@@ -77,6 +77,8 @@ class BankProduct(db.Model):
 class Credit(BankProduct):
     __tablename__ = "credits"
     client_id = db.mapped_column(db.Integer, primary_key=True)
+    _periods = db.mapped_column(db.Integer, name="periods") 
+    _closed = db.Column(db.Boolean, default=False, name="closed")
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
@@ -126,6 +128,8 @@ class Credit(BankProduct):
 class Deposit(BankProduct):
     __tablename__ = "deposits"
     client_id = db.mapped_column(db.Integer, primary_key=True)
+    _periods = db.mapped_column(db.Integer, name="periods") 
+    _closed = db.Column(db.Boolean, default=False, name="closed")
     
     def __init__(self, client_id, percent, sum, term, periods=-1):
         super().__init__(client_id, percent, sum, term)
@@ -183,11 +187,11 @@ class Deposit(BankProduct):
 # Получаем кредит клиента по его Id
 @app.route("/api/v1/bank/health_check", methods=["GET"])
 def health_check():
-    return "", 200
+    return "", 200 
 
 @app.route("/api/v1/credits/<int:client_id>", methods=["GET"])
 def get_credits(client_id):
-    credits_of_client = db.session.query(Credit).filter(Credit.client_id == client_id, Credit.closed == False).firts()
+    credits_of_client = db.session.query(Credit).filter(Credit.client_id == client_id, Credit.closed == False).first()
 
     if not credits_of_client:
         error_message = f"У клиента {client_id} нет активных кредитов"
@@ -224,7 +228,7 @@ def get_deposit(client_id):
 # Получаем все депозиты
 @app.route("/api/v1/deposits/all", methods=["GET"])
 def get_all_deposits():
-    deposits_all = db.session.query(Deposit).filter_by(closed=False).all()
+    deposits_all = db.session.query(Deposit).filter(Deposit.closed == False).all()
 
     deposits_list = []
     for deposit in deposits_all:
@@ -242,7 +246,7 @@ def get_all_deposits():
 # Получаем все кредиты
 @app.route("/api/v1/credits/all", methods=["GET"])
 def get_all_credits():
-    credits_all = db.session.query(Credit).filter_by(closed=False).all()
+    credits_all = db.session.query(Credit).filter(Credit.closed == False).all()
 
     credits_list = []
     for credit in credits_all:
@@ -368,6 +372,10 @@ def read_data():
                         item["periods"]
                     )
                     db.session.add(credit)
+    try:
+        db.session.commit()
+    except IntegrityError as err:
+        db.session.rollback()
                         
     deposits_info = db.session.query(Deposit).all()
     if not deposits_info:  
