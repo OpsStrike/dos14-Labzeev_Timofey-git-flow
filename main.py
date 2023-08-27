@@ -187,7 +187,7 @@ def health_check():
 
 @app.route("/api/v1/credits/<int:client_id>", methods=["GET"])
 def get_credits(client_id):
-    credits_of_client = db.session.query(Credit).filter_by(Credit.client_id == client_id, closed=False).all()
+    credits_of_client = db.session.query(Credit).filter(Credit.client_id == client_id, Credit.closed == False).firts()
 
     if not credits_of_client:
         error_message = f"У клиента {client_id} нет активных кредитов"
@@ -206,7 +206,7 @@ def get_credits(client_id):
 # Получаем депозит клиента по его id
 @app.route("/api/v1/deposits/<int:client_id>", methods=["GET"])
 def get_deposit(client_id):
-    deposit_of_client = db.session.query(Deposit).filter_by(Deposit.client_id == client_id, closed=False).all()
+    deposit_of_client = db.session.query(Deposit).filter(Deposit.client_id == client_id, Deposit.closed == False).first()
 
     if not deposit_of_client:
         error_message = f"Клиент {client_id} не имеет активных депозитов"
@@ -265,7 +265,7 @@ def create_credit():
 
         credit = Credit(**data)
 
-        existing_credit = db.session.query(Credit).filter_by(client_id=credit.client_id, closed=False).all()
+        existing_credit = db.session.query(Credit).filter(client_id=credit.client_id, closed=False).first()
         if existing_credit:
             return make_response(
                 jsonify(
@@ -297,7 +297,7 @@ def create_deposit():
 
         deposit = Deposit(**data)
 
-        deposits = db.session.query(Deposit).filter_by(client_id=deposit.client_id, closed=False).all()
+        deposits = db.session.query(Deposit).filter(client_id=deposit.client_id, closed=False).first()
         if deposits:
             return make_response(
                 jsonify(
@@ -331,8 +331,8 @@ def process_credits_and_deposits():
     while True:
         with app.app_context():                       
             # Создаем объекты кредитов и депозитов и добавляем их в соответствующие списки
-            credits_inf = db.session.query(Credit).filter_by(closed=False).all()
-            deposits_inf = db.session.query(Deposit).filter_by(closed=False).all()
+            credits_inf = db.session.query(Credit).filter(closed=False).all()
+            deposits_inf = db.session.query(Deposit).filter(closed=False).all()
 
             # Обрабатываем кредиты и депозиты
             for credit in credits_inf:
