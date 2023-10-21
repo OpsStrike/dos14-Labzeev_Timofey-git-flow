@@ -1,23 +1,39 @@
 pipeline {
-    agent any
-    stages {
-        stage('Test') {
-            steps {
-                echo 'Testing.....'
-            }
+  agent any
+  stages {
+    stage('Lint') {
+      when {
+        anyOf {
+          branch pattern:"feature-*"
+          branch pattern: "fix-*"
         }
-        stage('Build') {
-            steps {
-                echo 'Building..'
-            }
+      }
+      agent {
+        docker {
+          image 'python:3.11.3-buster'
+          args '-u 0'
         }
-        stage('Deploy') {
-            when {
-              branch "master"
-            }
-            steps {
-                echo 'Deploying...............'
-            }
-        }
+      }
+      steps {
+        sh 'pip install poetry'
+        sh 'poetry install --with dev'
+        sh "poetry run -- black --check *.py"
+      }
     }
+    stage('Build') {
+      when {
+        anyOf {
+          branch pattern: "master"
+        }
+      }
+      steps {
+        script {
+          def image = docker.build "were3/pythonapp:${env.GIT_COMMIT}"
+          docker.withRegistry('','dockerhub-tla') {
+            image.push()
+          }
+        }
+      }
+    }
+  }
 }
