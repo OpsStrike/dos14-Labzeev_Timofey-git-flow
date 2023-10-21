@@ -29,7 +29,7 @@ pipeline {
       steps {
         script {
           def image = docker.build "were3/pythonapp:${env.GIT_COMMIT}"
-          docker.withRegistry('','dockerhub-tla') {
+          docker.withRegistry('','dckr_pat_t2Zc8BHGqEPup0-w67rXbMgSKtU') {
             image.push()
           }
         }
