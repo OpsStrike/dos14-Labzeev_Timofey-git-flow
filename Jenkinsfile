@@ -28,7 +28,7 @@ pipeline {
       }
       steps {
         script {
-          docker.withRegistry('https://hub.docker.com/u/were3', 'were3/pythonapp') {
+          docker.withRegistry('https://hub.docker.com/r/were3/pythonapp', 'were3/pythonapp') {
             def image = docker.build "were3/pythonapp/tla/dos14bank:${env.GIT_COMMIT}"
             image.push()
           } 
