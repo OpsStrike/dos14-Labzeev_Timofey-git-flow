@@ -29,7 +29,7 @@ pipeline {
       steps {
         script {
           def image = docker.build "were3/dos14tla:${env.GIT_COMMIT}"
-          docker.withRegistry('','dockerhub-tla') {
+          docker.withRegistry('','were3/dos14tla') {
             image.push()
           }
         }
