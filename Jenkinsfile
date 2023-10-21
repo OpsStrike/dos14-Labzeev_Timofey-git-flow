@@ -28,11 +28,10 @@ pipeline {
       }
       steps {
         script {
-          docker.withRegistry('https://hub.docker.com/r/were3/pythonapp', 'were3/pythonapp') {
-            def image = docker.build "were3/pythonapp/tla/dos14bank:${env.GIT_COMMIT}"
+          def image = docker.build "were3/dos14tla:${env.GIT_COMMIT}"
+          docker.withRegistry('','dockerhub-tla') {
             image.push()
-          } 
-
+          }
         }
       }
     }
