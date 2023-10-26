@@ -18,12 +18,12 @@ pipeline {
         sh 'pip install poetry'
         sh 'poetry install --with dev'
         script {
-          // Сохраняем код до проверки
+          
           def originalCode = sh(script: 'cat *.py', returnStdout: true).trim()
-          // Проверка форматирования с Black
+         
           sh "poetry run -- black --check *.py"
           def blackExitCode = sh(script: 'echo $?', returnStatus: true)
-          // Если Black обнаружил несоответствия, применяем изменения
+          
           if (blackExitCode != 0) {
             sh "poetry run -- black *.py"
           } else {
