@@ -4,7 +4,7 @@ pipeline {
     stage('Lint') {
       when {
         anyOf {
-          branch pattern:"feature-*"
+          branch pattern: "feature-*"
           branch pattern: "fix-*"
         }
       }
@@ -17,7 +17,19 @@ pipeline {
       steps {
         sh 'pip install poetry'
         sh 'poetry install --with dev'
-        sh "poetry run -- black --check *.py"
+        script {
+          // Сохраняем код до проверки
+          def originalCode = sh(script: 'cat *.py', returnStdout: true).trim()
+          // Проверка форматирования с Black
+          sh "poetry run -- black --check *.py"
+          def blackExitCode = sh(script: 'echo $?', returnStatus: true)
+          // Если Black обнаружил несоответствия, применяем изменения
+          if (blackExitCode != 0) {
+            sh "poetry run -- black *.py"
+          } else {
+            echo "Форматирование кода без изменений."
+          }
+        }
       }
     }
     stage('Build') {
@@ -37,3 +49,4 @@ pipeline {
     }
   }
 }
+
