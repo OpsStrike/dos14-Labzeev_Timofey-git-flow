@@ -26,6 +26,7 @@ pipeline {
           branch pattern: "master"
         }
       }
+      
       steps {
         script {
           def image = docker.build "were3/dos14tla:${env.GIT_COMMIT}"
