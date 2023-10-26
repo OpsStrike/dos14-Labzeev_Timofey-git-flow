@@ -24,9 +24,7 @@ pipeline {
             echo "Изменения форматирования:"
             echo diff
             // Применяем изменения к исходным файлам
-            script {
-              sh "echo \"$diff\" | poetry run -- black -"
-            }
+            sh "echo \"$diff\" | poetry run -- black -"
           } else {
             echo "Форматирование кода без изменений."
           }
