@@ -4,7 +4,7 @@ pipeline {
     stage('Lint') {
       when {
         anyOf {
-          branch pattern: "feature-*"
+          branch pattern:"feature-*"
           branch pattern: "fix-*"
         }
       }
@@ -17,20 +17,24 @@ pipeline {
       steps {
         sh 'pip install poetry'
         sh 'poetry install --with dev'
+        sh "poetry run -- black --check *.py"
+      }
+    }
+    stage('Build') {
+      when {
+        anyOf {
+          branch pattern: "master"
+        }
+      }
+      
+      steps {
         script {
-          def diff = sh(script: 'poetry run -- black --diff *.py', returnStdout: true).trim()
-          
-          if (diff) {
-            echo "Изменения форматирования:"
-            echo diff
-            // Применяем изменения к исходным файлам
-            sh "echo \"$diff\" | poetry run -- black -"
-          } else {
-            echo "Форматирование кода без изменений."
+          def image = docker.build "were3/dos14tla:${env.GIT_COMMIT}"
+          docker.withRegistry('','were3/dos14tla') {
+            image.push()
           }
         }
       }
     }
   }
 }
-
