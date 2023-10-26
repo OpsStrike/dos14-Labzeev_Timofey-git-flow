@@ -18,14 +18,12 @@ pipeline {
         sh 'pip install poetry'
         sh 'poetry install --with dev'
         script {
+          def diff = sh(script: 'poetry run -- black --diff *.py', returnStdout: true).trim()
           
-          def originalCode = sh(script: 'cat *.py', returnStdout: true).trim()
-         
-          sh "poetry run -- black --check *.py"
-          def blackExitCode = sh(script: 'echo $?', returnStatus: true)
-          
-          if (blackExitCode != 0) {
-            sh "poetry run -- black *.py"
+          if (diff) {
+            echo "Изменения форматирования:"
+            echo diff
+            sh "echo \"$diff\" | poetry run -- black -"
           } else {
             echo "Форматирование кода без изменений."
           }
